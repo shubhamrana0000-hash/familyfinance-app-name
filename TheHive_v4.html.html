@@ -1,0 +1,1563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>The Hive — 20 Year Wealth</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+:root{
+  --h:#E8920A;--hl:#FFB830;--hd:#7A5200;
+  --dk:#0C0800;--d2:#141008;--d3:#1C1508;--d4:#24190A;--d5:#302210;--d6:#3E2E14;
+  --tx:#FFF4DC;--t2:#C8A870;--t3:#7A5830;--t4:#3A2810;
+  --gr:#4CAF7A;--grd:#0E2A18;
+  --rd:#E05050;--rdd:#2A0E0E;
+  --bl:#5090E8;
+  --am:#F5C842;
+  --nav:70px;--r:14px;--rs:9px;
+}
+html,body{height:100%;overflow:hidden;background:var(--dk);color:var(--tx);font-family:'DM Sans',sans-serif;font-size:14px;-webkit-font-smoothing:antialiased;}
+#app{display:flex;flex-direction:column;height:100%;max-width:430px;margin:0 auto;position:relative;overflow:hidden;}
+.hexbg{position:fixed;top:0;left:0;right:0;height:220px;opacity:.06;pointer-events:none;z-index:0;}
+/* HEADER */
+.hdr{background:linear-gradient(155deg,#201400,#0C0800);padding:46px 16px 14px;border-bottom:1.5px solid rgba(232,146,10,.18);flex-shrink:0;z-index:10;position:relative;}
+.hdr-row{display:flex;justify-content:space-between;align-items:flex-start;}
+.hdr-eye{font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:var(--hd);font-weight:600;}
+.hdr-name{font-family:'Fraunces',serif;font-size:22px;font-weight:900;color:var(--tx);margin-top:2px;line-height:1.1;}
+.hdr-sub{font-size:10px;color:var(--t3);margin-top:4px;}
+.hdr-pill{background:linear-gradient(135deg,var(--h),var(--am));border-radius:20px;padding:5px 12px;font-size:10px;color:#1A0C00;font-weight:700;box-shadow:0 2px 10px rgba(232,146,10,.3);}
+/* SCROLL — fix: extra bottom pad */
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:calc(var(--nav) + 40px);}
+.scroll::-webkit-scrollbar{display:none;}
+.screen{display:none;}
+.screen.on{display:block;}
+/* NAV */
+.nav{position:absolute;bottom:0;left:0;right:0;height:var(--nav);background:rgba(12,8,0,.97);backdrop-filter:blur(24px);border-top:1.5px solid rgba(232,146,10,.15);display:flex;align-items:flex-start;justify-content:space-around;padding:8px 2px 0;z-index:200;}
+.nb{display:flex;flex-direction:column;align-items:center;gap:3px;padding:5px 8px;border-radius:10px;cursor:pointer;border:none;background:transparent;min-width:52px;transition:all .2s;}
+.nb.on{background:rgba(232,146,10,.1);}
+.nb-i{font-size:19px;line-height:1;transition:transform .2s;}
+.nb.on .nb-i{transform:scale(1.12);}
+.nb span{font-size:9px;color:var(--t3);font-weight:600;letter-spacing:.3px;text-transform:uppercase;transition:color .2s;}
+.nb.on span{color:var(--h);}
+/* CARDS */
+.card{background:var(--d3);border-radius:var(--r);border:1px solid rgba(232,146,10,.1);padding:15px;margin:10px 13px 0;}
+.ct{font-size:9px;letter-spacing:1.8px;text-transform:uppercase;color:var(--t3);font-weight:600;margin-bottom:12px;}
+/* STAT GRID */
+.sg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 13px 0;}
+.sb{border-radius:var(--rs);padding:13px 12px 11px;position:relative;overflow:hidden;cursor:pointer;}
+.sb-h{background:linear-gradient(135deg,#221500,#120C00);border:1px solid rgba(232,146,10,.18);}
+.sb-g{background:linear-gradient(135deg,#091A0E,#04100A);border:1px solid rgba(76,175,122,.18);}
+.sb-b{background:linear-gradient(135deg,#081428,#040C18);border:1px solid rgba(80,144,232,.18);}
+.sb-a{background:linear-gradient(135deg,#221600,#140D00);border:1px solid rgba(245,200,66,.18);}
+.sl{font-size:9px;color:var(--t3);letter-spacing:.7px;text-transform:uppercase;font-weight:500;}
+.sv{font-family:'Fraunces',serif;font-size:19px;font-weight:700;margin-top:3px;line-height:1;}
+.sv-h{color:var(--h);}
+.sv-g{color:var(--gr);}
+.sv-b{color:var(--bl);}
+.sv-a{color:var(--am);}
+.ss{font-size:9px;color:var(--t4);margin-top:3px;}
+.hx{position:absolute;right:-8px;bottom:-8px;font-size:38px;opacity:.08;}
+/* PROGRESS BARS */
+.pr{margin-bottom:10px;}
+.pr:last-child{margin-bottom:0;}
+.pr-row{display:flex;justify-content:space-between;margin-bottom:4px;}
+.pr-name{font-size:11px;color:var(--t2);}
+.pr-val{font-size:10px;color:var(--t3);}
+.pr-track{height:5px;background:var(--d5);border-radius:3px;overflow:hidden;}
+.pr-fill{height:100%;border-radius:3px;transition:width .7s cubic-bezier(.25,.46,.45,.94);}
+/* TARGET RING */
+.ta-ring{display:flex;align-items:center;gap:14px;padding:4px 0 8px;}
+.ta-circle{position:relative;width:72px;height:72px;flex-shrink:0;}
+.ta-circle svg{width:72px;height:72px;transform:rotate(-90deg);}
+.ta-ct{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.ta-pct{font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--h);line-height:1;}
+.ta-lbl{font-size:7px;color:var(--t3);text-align:center;margin-top:1px;}
+.ta-stats{flex:1;}
+.ta-row{display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.04);}
+.ta-row:last-child{border-bottom:none;}
+.ta-key{font-size:10px;color:var(--t3);}
+.ta-v{font-size:10px;font-weight:600;color:var(--tx);}
+/* MILESTONES */
+.ml{display:flex;align-items:center;gap:9px;padding:7px 0;border-bottom:1px solid rgba(232,146,10,.05);}
+.ml:last-child{border-bottom:none;}
+.ml-yr{font-size:10px;font-weight:700;color:var(--hd);width:28px;flex-shrink:0;}
+.ml-bw{flex:1;}
+.ml-b{height:5px;background:var(--d5);border-radius:3px;overflow:hidden;}
+.ml-f{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--hd),var(--hl));}
+.ml-lbl{font-size:9px;color:var(--t3);margin-top:2px;}
+.ml-v{font-size:11px;font-weight:700;color:var(--hl);min-width:55px;text-align:right;}
+/* LEDGER */
+.led-row{display:flex;align-items:flex-start;gap:10px;padding:11px 13px;border-bottom:1px solid rgba(255,255,255,.04);cursor:pointer;}
+.led-row:last-child{border-bottom:none;}
+.led-icon{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.led-info{flex:1;}
+.led-name{font-size:13px;color:var(--tx);}
+.led-sub{font-size:10px;color:var(--t3);margin-top:2px;}
+.led-right{text-align:right;}
+.led-budget{font-size:10px;color:var(--t3);}
+.led-actual{font-size:14px;font-weight:600;margin-top:2px;}
+.led-actual.over{color:var(--rd);}
+.led-actual.under{color:var(--gr);}
+.led-actual.same{color:var(--h);}
+.led-diff{font-size:9px;margin-top:1px;}
+.led-diff.over{color:var(--rd);}
+.led-diff.under{color:var(--gr);}
+/* YEAR TABS + MONTH STRIP */
+.year-tabs{display:flex;overflow-x:auto;gap:5px;padding:10px 13px 0;scrollbar-width:none;}
+.year-tabs::-webkit-scrollbar{display:none;}
+.ytab{flex-shrink:0;padding:6px 14px;border-radius:18px;border:1px solid rgba(232,146,10,.1);background:var(--d3);font-size:11px;color:var(--t3);cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:500;transition:all .2s;}
+.ytab.on{background:linear-gradient(135deg,var(--h),var(--am));color:#1A0C00;font-weight:700;border-color:transparent;}
+.ytab.done{border-color:rgba(76,175,122,.25);color:var(--gr);}
+.ytab.future{opacity:.35;cursor:default;}
+.month-strip{display:flex;overflow-x:auto;gap:5px;padding:8px 13px 0;scrollbar-width:none;}
+.month-strip::-webkit-scrollbar{display:none;}
+.mbtn{flex-shrink:0;padding:6px 12px;border-radius:16px;border:1px solid rgba(232,146,10,.1);background:var(--d3);font-size:11px;color:var(--t3);cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:500;transition:all .2s;}
+.mbtn.on{background:linear-gradient(135deg,var(--h),var(--am));color:#1A0C00;font-weight:700;border-color:transparent;}
+.mbtn.saved{border-color:rgba(76,175,122,.3);color:var(--gr);}
+.mbtn.future{opacity:.3;cursor:default;}
+/* TASK PROGRESS BAR */
+.msbar{height:3px;background:var(--d5);margin:7px 13px 0;border-radius:2px;overflow:hidden;}
+.msfill{height:100%;background:linear-gradient(90deg,var(--hd),var(--h));border-radius:2px;transition:width .5s;}
+.msmeta{display:flex;justify-content:space-between;padding:4px 13px 0;font-size:10px;color:var(--t3);}
+.msmeta span:last-child{color:var(--h);font-weight:600;}
+.mtr{display:flex;justify-content:space-between;align-items:center;padding:9px 13px 0;}
+.mt-title{font-family:'Fraunces',serif;font-size:18px;color:var(--tx);}
+.saved-pill{background:var(--grd);border:1px solid rgba(76,175,122,.3);border-radius:20px;padding:3px 10px;font-size:9px;color:var(--gr);font-weight:600;}
+/* TASK ACTIONS */
+.tactions{display:flex;gap:7px;margin:9px 13px 0;}
+.ta-btn{flex:1;padding:10px 8px;border-radius:var(--rs);border:none;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;transition:all .15s;-webkit-user-select:none;}
+.ta-btn:active{transform:scale(.97);}
+.ta-save{background:linear-gradient(135deg,var(--h),var(--am));color:#180C00;}
+.ta-reset{background:var(--d4);border:1px solid rgba(224,80,80,.2);color:var(--rd);font-size:11px;}
+/* TASK LIST */
+.tsec{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--t3);font-weight:600;padding:12px 13px 6px;}
+.tcard{background:var(--d3);border-radius:var(--r);border:1px solid rgba(232,146,10,.09);margin:0 13px;overflow:hidden;}
+.ti{display:flex;align-items:flex-start;gap:10px;padding:11px 13px;border-bottom:1px solid rgba(255,255,255,.04);-webkit-user-select:none;}
+.ti:last-child{border-bottom:none;}
+.tch{width:21px;height:21px;border-radius:50%;border:1.5px solid var(--d6);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;cursor:pointer;transition:all .2s;}
+.tch.done{background:var(--gr);border-color:var(--gr);}
+.tch.done::after{content:'✓';font-size:11px;color:#081408;font-weight:700;}
+.tn{font-size:13px;color:var(--tx);line-height:1.3;}
+.tn.done{text-decoration:line-through;color:var(--t3);}
+.tsub{font-size:10px;color:var(--t3);margin-top:2px;}
+.tamt{font-size:10px;font-weight:600;color:var(--h);}
+.t-acts{display:flex;gap:5px;margin-left:auto;flex-shrink:0;}
+.t-act{background:none;border:none;cursor:pointer;padding:3px;font-size:13px;border-radius:5px;transition:background .12s;}
+.t-act:active{background:rgba(255,255,255,.07);}
+.add-row{display:flex;align-items:center;gap:8px;padding:10px 13px;margin:7px 13px 0;background:var(--d3);border-radius:var(--rs);border:1.5px dashed rgba(232,146,10,.15);cursor:pointer;-webkit-user-select:none;}
+.add-row span{font-size:11px;color:var(--t3);}
+/* IDEA / TIP CARDS */
+.idea-card{background:var(--d3);border-radius:var(--r);border:1px solid rgba(232,146,10,.1);padding:14px 14px 14px 17px;margin:0 13px 9px;cursor:pointer;transition:all .15s;position:relative;overflow:hidden;}
+.idea-card:active{transform:scale(.98);}
+.idea-stripe{position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:3px 0 0 3px;}
+.idea-arr{position:absolute;right:13px;top:50%;transform:translateY(-50%);font-size:14px;color:var(--hd);}
+.idea-num{font-size:9px;color:var(--hd);font-weight:700;letter-spacing:1px;margin-bottom:3px;}
+.idea-t{font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--tx);margin-bottom:3px;padding-right:22px;}
+.idea-prev{font-size:11px;color:var(--t3);line-height:1.4;padding-right:20px;}
+.idea-imp{display:inline-flex;align-items:center;gap:4px;margin-top:8px;font-size:10px;font-weight:600;color:var(--h);background:rgba(232,146,10,.1);padding:3px 10px;border-radius:20px;}
+/* DETAIL PAGE */
+#detail-page{position:fixed;inset:0;background:var(--dk);z-index:400;overflow-y:auto;-webkit-overflow-scrolling:touch;display:none;}
+#detail-page.on{display:block;animation:slideR .26s ease;}
+@keyframes slideR{from{transform:translateX(100%);}to{transform:translateX(0);}}
+.dp-hdr{padding:50px 16px 22px;position:relative;overflow:hidden;}
+.dp-back{display:flex;align-items:center;gap:5px;color:var(--h);font-size:12px;font-weight:600;cursor:pointer;margin-bottom:12px;-webkit-user-select:none;}
+.dp-emoji{font-size:40px;margin-bottom:8px;}
+.dp-num{font-size:9px;letter-spacing:2px;color:var(--hd);font-weight:600;margin-bottom:3px;}
+.dp-title{font-family:'Fraunces',serif;font-size:22px;font-weight:900;color:var(--tx);line-height:1.15;}
+.dp-impact{display:inline-flex;margin-top:10px;font-size:11px;font-weight:700;color:#180C00;background:linear-gradient(135deg,var(--h),var(--am));padding:5px 14px;border-radius:20px;}
+.dp-body{padding:16px 14px 90px;}
+.dp-sec{margin-bottom:20px;}
+.dp-sec-t{font-family:'Fraunces',serif;font-size:15px;font-weight:700;color:var(--hl);margin-bottom:9px;display:flex;align-items:center;gap:7px;}
+.dp-overview{background:var(--d3);border-radius:var(--r);border:1px solid rgba(232,146,10,.12);padding:13px;font-size:12px;color:var(--t2);line-height:1.65;}
+.dp-step{background:var(--d3);border-radius:var(--rs);border:1px solid rgba(232,146,10,.08);padding:12px 13px;margin-bottom:7px;display:flex;gap:11px;}
+.dp-sn{width:25px;height:25px;border-radius:50%;background:linear-gradient(135deg,var(--h),var(--am));color:#180C00;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.dp-st{font-size:12px;font-weight:600;color:var(--tx);margin-bottom:3px;}
+.dp-sd{font-size:11px;color:var(--t3);line-height:1.55;}
+.dp-when{background:linear-gradient(135deg,var(--d4),var(--d3));border-radius:var(--rs);border:1px solid rgba(232,146,10,.12);padding:12px 13px;margin-bottom:7px;}
+.dp-wl{font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--hd);font-weight:600;margin-bottom:3px;}
+.dp-wt{font-size:12px;color:var(--t2);line-height:1.5;}
+.dp-tip{background:rgba(76,175,122,.06);border:1px solid rgba(76,175,122,.15);border-radius:var(--rs);padding:11px 13px;margin-bottom:7px;display:flex;gap:9px;}
+.dp-warn{background:rgba(224,80,80,.06);border:1px solid rgba(224,80,80,.15);border-radius:var(--rs);padding:11px 13px;margin-bottom:7px;display:flex;gap:9px;}
+.dp-calc{background:var(--d4);border-radius:var(--rs);border:1px solid rgba(245,200,66,.12);padding:13px;}
+.dp-cl{font-size:9px;letter-spacing:.8px;text-transform:uppercase;color:var(--am);font-weight:600;margin-bottom:7px;}
+.dp-cr{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04);}
+.dp-cr:last-child{border-bottom:none;}
+.dp-ck{font-size:11px;color:var(--t3);}
+.dp-cv{font-size:11px;color:var(--tx);font-weight:600;}
+/* REPORT */
+.rpt-hero{background:linear-gradient(135deg,var(--d4),var(--dk));border-radius:var(--r);border:2px solid rgba(232,146,10,.2);padding:16px;margin:10px 13px 0;position:relative;overflow:hidden;}
+.rpt-big{font-family:'Fraunces',serif;font-size:42px;font-weight:900;color:var(--hl);line-height:1;}
+.rpt-mg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;}
+.rpt-mc{background:rgba(0,0,0,.3);border-radius:var(--rs);padding:9px 11px;}
+.rpt-mv{font-family:'Fraunces',serif;font-size:16px;font-weight:700;color:var(--tx);}
+.rpt-ml{font-size:9px;color:var(--t3);margin-top:1px;}
+/* 20-YEAR ROWS */
+.yr20-row{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04);}
+.yr20-row:last-child{border-bottom:none;}
+.yr20-lbl{font-size:11px;color:var(--t2);width:44px;flex-shrink:0;}
+.yr20-bar{flex:1;height:5px;background:var(--d5);border-radius:3px;overflow:hidden;}
+.yr20-fill{height:100%;border-radius:3px;}
+.yr20-val{font-size:10px;font-weight:600;min-width:42px;text-align:right;}
+/* YEAR REPORT CARDS */
+.yr-card{background:var(--d3);border-radius:var(--r);border:1px solid rgba(232,146,10,.1);margin:0 13px 8px;overflow:hidden;}
+.yr-hdr{display:flex;align-items:center;justify-content:space-between;padding:12px 13px;cursor:pointer;-webkit-user-select:none;}
+.yr-title{font-family:'Fraunces',serif;font-size:14px;color:var(--tx);}
+.yr-right{display:flex;align-items:center;gap:8px;}
+.yr-pill{font-size:10px;font-weight:600;padding:3px 9px;border-radius:20px;}
+.yr-pill.g{background:var(--grd);color:var(--gr);}
+.yr-pill.a{background:rgba(232,146,10,.1);color:var(--h);}
+.yr-pill.r{background:var(--rdd);color:var(--rd);}
+.yr-body{display:none;border-top:1px solid rgba(255,255,255,.04);padding:10px 13px 13px;}
+.yr-body.on{display:block;}
+.yrm-row{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.03);cursor:pointer;}
+.yrm-row:last-child{border-bottom:none;}
+.yrm-row.future{cursor:default;}
+.yrm-name{font-size:11px;color:var(--t2);width:34px;flex-shrink:0;}
+.yrm-bar{flex:1;height:4px;background:var(--d5);border-radius:2px;overflow:hidden;}
+.yrm-fill{height:100%;border-radius:2px;}
+.yrm-pct{font-size:10px;color:var(--t3);min-width:32px;text-align:right;}
+.chevron{width:14px;height:14px;border-right:1.5px solid var(--t3);border-bottom:1.5px solid var(--t3);transform:rotate(45deg) translateY(-2px);transition:transform .2s;margin-top:2px;}
+.chevron.open{transform:rotate(-135deg) translateY(2px);}
+/* EXPORT */
+.xpanel{background:var(--d3);border-radius:var(--r);border:1px solid rgba(232,146,10,.12);padding:14px;margin:10px 13px 0;}
+.xp-t{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--hd);font-weight:600;margin-bottom:11px;}
+.xbtn{display:flex;align-items:center;gap:11px;padding:11px 13px;background:var(--d4);border-radius:var(--rs);border:1px solid rgba(255,255,255,.05);cursor:pointer;margin-bottom:7px;transition:all .14s;-webkit-user-select:none;}
+.xbtn:last-child{margin-bottom:0;}
+.xbtn:active{background:var(--d5);}
+.xi{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;}
+.xn{font-size:12px;font-weight:500;color:var(--tx);}
+.xs2{font-size:10px;color:var(--t3);margin-top:1px;}
+/* GDRIVE */
+.gdrive-panel{background:linear-gradient(135deg,#0A1A08,#060E04);border-radius:var(--r);border:1px solid rgba(76,175,122,.18);padding:14px;margin:10px 13px 0;}
+.gd-title{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:rgba(76,175,122,.7);font-weight:600;margin-bottom:4px;}
+.gd-note{font-size:11px;color:var(--t3);line-height:1.55;margin-bottom:11px;}
+/* MODAL */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:500;display:none;align-items:flex-end;justify-content:center;}
+.overlay.on{display:flex;}
+.modal{background:var(--d2);border-radius:20px 20px 0 0;border:1px solid rgba(232,146,10,.15);border-bottom:none;width:100%;max-width:430px;padding:20px 16px 34px;animation:slideUp .24s ease;}
+@keyframes slideUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
+.modal-t{font-family:'Fraunces',serif;font-size:18px;color:var(--tx);margin-bottom:14px;}
+.mf{margin-bottom:11px;}
+.mf label{display:block;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--t3);font-weight:600;margin-bottom:5px;}
+.mf input,.mf select{width:100%;background:var(--d4);border:1px solid rgba(232,146,10,.12);border-radius:var(--rs);padding:10px 12px;color:var(--tx);font-family:'DM Sans',sans-serif;font-size:13px;outline:none;transition:border .2s;}
+.mf input:focus,.mf select:focus{border-color:rgba(232,146,10,.45);}
+.mf select option{background:var(--d3);}
+.modal-btns{display:flex;gap:9px;margin-top:15px;}
+.mbt{flex:1;padding:11px;border-radius:var(--rs);border:none;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .14s;}
+.mbt:active{transform:scale(.98);}
+.mbt-c{background:var(--d5);color:var(--t2);}
+.mbt-s{background:linear-gradient(135deg,var(--h),var(--am));color:#180C00;}
+/* TOAST */
+.toast{position:fixed;bottom:calc(var(--nav)+14px);left:50%;transform:translateX(-50%) translateY(14px);background:var(--d4);border:1px solid rgba(232,146,10,.2);border-radius:20px;padding:8px 18px;font-size:12px;color:var(--tx);z-index:1000;opacity:0;transition:all .28s;pointer-events:none;white-space:nowrap;max-width:340px;text-align:center;}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0);}
+/* SIP TABLE */
+.sip-r{display:flex;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04);gap:8px;}
+.sip-r:last-child{border-bottom:none;}
+.sip-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.sip-n{font-size:11px;color:var(--t2);flex:1;}
+.sip-c{font-size:9px;color:var(--t3);}
+.sip-a{font-size:12px;font-weight:700;color:var(--h);}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.screen.on>*{animation:fadeUp .25s ease both;}
+.screen.on>*:nth-child(2){animation-delay:.04s;}
+.screen.on>*:nth-child(3){animation-delay:.08s;}
+.screen.on>*:nth-child(n+4){animation-delay:.12s;}
+@keyframes beeFly{0%,100%{transform:translate(0,0) rotate(-3deg);}50%{transform:translate(10px,-8px) rotate(4deg);}}
+.bee{display:inline-block;animation:beeFly 4s ease-in-out infinite;}
+.bee2{display:inline-block;animation:beeFly 5.5s ease-in-out infinite reverse;}
+</style>
+</head>
+<body>
+<div id="app">
+<svg class="hexbg" viewBox="0 0 400 220" xmlns="http://www.w3.org/2000/svg">
+  <defs><pattern id="hp" x="0" y="0" width="58" height="50" patternUnits="userSpaceOnUse">
+    <polygon points="14,0 44,0 58,25 44,50 14,50 0,25" fill="none" stroke="#E8920A" stroke-width="1"/>
+    <polygon points="14,0 44,0 58,25 44,50 14,50 0,25" fill="none" stroke="#E8920A" stroke-width="1" transform="translate(29,25)"/>
+  </pattern></defs>
+  <rect width="400" height="220" fill="url(#hp)"/>
+</svg>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="hdr-row">
+    <div>
+      <div class="hdr-eye">The Hive — 20-Year Wealth</div>
+      <div class="hdr-name"><span class="bee">🐝</span> Family Plan <span class="bee2" style="font-size:16px;">🍯</span></div>
+      <div class="hdr-sub" id="hdr-sub"></div>
+    </div>
+    <div class="hdr-pill" id="hdr-pill"></div>
+  </div>
+</div>
+
+<div class="scroll">
+
+<!-- ═══ HOME ═══ -->
+<div class="screen on" id="s-home">
+  <!-- Editable stat cards -->
+  <div class="sg">
+    <div class="sb sb-h" onclick="openEditIncome()"><div class="hx">🍯</div><div class="sl">Monthly Income ✏️</div><div class="sv sv-h" id="h-income">₹70,000</div><div class="ss">Tap to edit</div></div>
+    <div class="sb sb-g" onclick="openEditIncome()"><div class="hx">🌿</div><div class="sl">After EMI ✏️</div><div class="sv sv-g" id="h-after-emi">₹50,000</div><div class="ss">Available</div></div>
+    <div class="sb sb-b" onclick="openEditIncome()"><div class="hx">📈</div><div class="sl">Invest/Month ✏️</div><div class="sv sv-b" id="h-invest">₹20,000</div><div class="ss">SIP + Gold</div></div>
+    <div class="sb sb-a"><div class="hx">🏆</div><div class="sl">20-Yr Target</div><div class="sv sv-a" id="h-target">₹3.97Cr</div><div class="ss">Financial freedom</div></div>
+  </div>
+
+  <!-- TARGET ACHIEVED -->
+  <div class="card" style="margin-top:10px;">
+    <div class="ct">🎯 Target Achieved — Live Performance</div>
+    <div class="ta-ring">
+      <div class="ta-circle">
+        <svg viewBox="0 0 72 72"><circle cx="36" cy="36" r="29" fill="none" stroke="rgba(232,146,10,.1)" stroke-width="6"/><circle cx="36" cy="36" r="29" fill="none" stroke="url(#tgr)" stroke-width="6" stroke-dasharray="182.2" stroke-dashoffset="182.2" id="ta-arc" stroke-linecap="round"/><defs><linearGradient id="tgr" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#7A5200"/><stop offset="100%" stop-color="#FFB830"/></linearGradient></defs></svg>
+        <div class="ta-ct"><div class="ta-pct" id="ta-pct">0%</div><div class="ta-lbl">achieved</div></div>
+      </div>
+      <div class="ta-stats" id="ta-stats"></div>
+    </div>
+  </div>
+
+  <!-- Monthly activity -->
+  <div class="card" style="margin-top:10px;">
+    <div class="ct">🐝 This Month's Hive Activity</div>
+    <div id="dash-prog"></div>
+  </div>
+
+  <!-- Allocation -->
+  <div class="card" style="margin-top:10px;background:linear-gradient(135deg,#201500,#0E0A00);border-color:rgba(232,146,10,.2);">
+    <div class="ct" style="color:var(--hd);">🍯 Monthly Honey Allocation <span style="float:right;cursor:pointer;font-size:11px;color:var(--h);" onclick="openEditIncome()">Edit ✏️</span></div>
+    <div id="home-alloc"></div>
+  </div>
+
+  <!-- Milestones -->
+  <div class="card" style="margin-top:10px;">
+    <div class="ct">🌻 20-Year Wealth Milestones</div>
+    <div class="ml"><div class="ml-yr">Yr 1</div><div class="ml-bw"><div class="ml-b"><div class="ml-f" style="width:4%;"></div></div><div class="ml-lbl">Foundation — build the hive</div></div><div class="ml-v">₹1.9L</div></div>
+    <div class="ml"><div class="ml-yr">Yr 3</div><div class="ml-bw"><div class="ml-b"><div class="ml-f" style="width:11%;"></div></div><div class="ml-lbl">Step-up SIP — grow colony</div></div><div class="ml-v">₹6.6L</div></div>
+    <div class="ml"><div class="ml-yr">Yr 5</div><div class="ml-bw"><div class="ml-b"><div class="ml-f" style="width:20%;"></div></div><div class="ml-lbl">Review &amp; rebalance</div></div><div class="ml-v">₹12.6L</div></div>
+    <div class="ml"><div class="ml-yr">Yr 10</div><div class="ml-bw"><div class="ml-b"><div class="ml-f" style="width:44%;"></div></div><div class="ml-lbl">EMI ends — redirect ₹20K!</div></div><div class="ml-v">₹36.6L</div></div>
+    <div class="ml"><div class="ml-yr">Yr 15</div><div class="ml-bw"><div class="ml-b"><div class="ml-f" style="width:72%;"></div></div><div class="ml-lbl">Queen Bee — ₹1Cr crossed</div></div><div class="ml-v">₹59.6L</div></div>
+    <div class="ml"><div class="ml-yr">Yr 20</div><div class="ml-bw"><div class="ml-b"><div class="ml-f" style="width:100%;"></div></div><div class="ml-lbl">🐝 Royal Hive — Freedom!</div></div><div class="ml-v">₹3.97Cr</div></div>
+  </div>
+
+  <!-- SIP Portfolio -->
+  <div class="card" style="margin-top:10px;">
+    <div class="ct">📊 SIP Portfolio</div>
+    <div class="sip-r"><div class="sip-dot" style="background:#5090E8;"></div><div style="flex:1;"><div class="sip-n">Mirae Asset Large Cap</div><div class="sip-c">Large Cap · 12–14% CAGR</div></div><div class="sip-a">₹4,000</div></div>
+    <div class="sip-r"><div class="sip-dot" style="background:#4CAF7A;"></div><div style="flex:1;"><div class="sip-n">Parag Parikh Flexi Cap</div><div class="sip-c">Flexi Cap · 13–15% CAGR</div></div><div class="sip-a">₹3,000</div></div>
+    <div class="sip-r"><div class="sip-dot" style="background:#E09020;"></div><div style="flex:1;"><div class="sip-n">Axis Midcap Fund</div><div class="sip-c">Mid Cap · 14–16% CAGR</div></div><div class="sip-a">₹3,000</div></div>
+    <div class="sip-r"><div class="sip-dot" style="background:#E8920A;"></div><div style="flex:1;"><div class="sip-n">Mirae ELSS Tax Saver</div><div class="sip-c">ELSS 80C · 12–14% CAGR</div></div><div class="sip-a">₹4,000</div></div>
+    <div class="sip-r"><div class="sip-dot" style="background:#E05050;"></div><div style="flex:1;"><div class="sip-n">Nippon India Small Cap</div><div class="sip-c">Small Cap · 15–18% CAGR</div></div><div class="sip-a">₹1,000</div></div>
+    <div style="border-top:1px solid rgba(232,146,10,.1);margin-top:7px;padding-top:8px;display:flex;justify-content:space-between;"><span style="font-size:11px;color:var(--t3);">Total SIP/month</span><span style="font-family:'Fraunces',serif;font-size:15px;color:var(--h);">₹15,000</span></div>
+  </div>
+  <div style="height:12px;"></div>
+</div>
+
+<!-- ═══ TASKS ═══ -->
+<div class="screen" id="s-tasks">
+  <div class="year-tabs" id="year-tabs"></div>
+  <div class="month-strip" id="month-strip"></div>
+  <div class="msbar"><div class="msfill" id="msfill" style="width:0%;"></div></div>
+  <div class="msmeta"><span id="ms-left">0 of 8</span><span id="ms-right">0%</span></div>
+  <div class="mtr"><div class="mt-title" id="task-month-label"></div><div id="saved-pill-wrap"></div></div>
+  <!-- Save + Reset only — no Redo (req #10) -->
+  <div class="tactions">
+    <button class="ta-btn ta-save" onclick="saveMonth()">💾 Save &amp; Next Month</button>
+    <button class="ta-btn ta-reset" onclick="resetMonth()">✕ Reset</button>
+  </div>
+
+  <!-- LEDGER -->
+  <div class="tsec">💰 Monthly Money Ledger <span style="color:var(--h);cursor:pointer;" onclick="openLedger()">(Edit Actuals)</span></div>
+  <div class="tcard"><div id="ledger-list"></div></div>
+
+  <!-- Monthly tasks -->
+  <div class="tsec">🐝 Monthly Worker Tasks</div>
+  <div class="tcard" id="monthly-list"></div>
+  <div class="add-row" onclick="openAddTask('m')"><span>➕</span><span>Add Monthly Task</span></div>
+
+  <div class="tsec">🌻 Quarterly Goals</div>
+  <div class="tcard" id="quarterly-list"></div>
+  <div class="add-row" onclick="openAddTask('q')"><span>➕</span><span>Add Quarterly Goal</span></div>
+  <div style="height:10px;"></div>
+</div>
+
+<!-- ═══ INVEST ═══ -->
+<div class="screen" id="s-invest">
+  <div style="padding:12px 13px 0;">
+    <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--hd);font-weight:600;">Every Flower Has Nectar</div>
+    <div style="font-family:'Fraunces',serif;font-size:19px;color:var(--tx);margin-top:2px;">🌺 20 Investment Tips</div>
+    <div style="font-size:11px;color:var(--t3);margin-top:3px;">Tap any tip for full step-by-step guide</div>
+  </div>
+  <div style="height:10px;"></div>
+  <div id="invest-list"></div>
+  <div style="height:8px;"></div>
+</div>
+
+<!-- ═══ IDEAS ═══ -->
+<div class="screen" id="s-ideas">
+  <div style="padding:12px 13px 0;">
+    <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--hd);font-weight:600;">Queen Bee's Wisdom</div>
+    <div style="font-family:'Fraunces',serif;font-size:19px;color:var(--tx);margin-top:2px;">🍯 20 Wealth Paths</div>
+    <div style="font-size:11px;color:var(--t3);margin-top:3px;">Tap any idea for full deep-dive guide</div>
+  </div>
+  <div style="height:8px;"></div>
+  <div id="ideas-list"></div>
+  <div style="height:8px;"></div>
+</div>
+
+<!-- ═══ REPORT ═══ -->
+<div class="screen" id="s-report">
+  <!-- Annual hero -->
+  <div class="rpt-hero">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+      <div>
+        <div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--hd);font-weight:600;" id="rpt-yr-lbl">2025 Hive Report</div>
+        <div class="rpt-big" id="rpt-pct">0%</div>
+        <div style="font-size:10px;color:var(--t3);margin-top:2px;">Annual task completion</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:9px;color:var(--t3);margin-bottom:3px;">Invested YTD</div>
+        <div style="font-family:'Fraunces',serif;font-size:18px;color:var(--h);" id="rpt-inv">₹0</div>
+      </div>
+    </div>
+    <div class="rpt-mg">
+      <div class="rpt-mc"><div class="rpt-mv" id="rpt-done">0</div><div class="rpt-ml">Tasks done YTD</div></div>
+      <div class="rpt-mc"><div class="rpt-mv" id="rpt-saved">0</div><div class="rpt-ml">Months saved</div></div>
+      <div class="rpt-mc"><div class="rpt-mv" id="rpt-streak">0</div><div class="rpt-ml">Best streak</div></div>
+      <div class="rpt-mc"><div class="rpt-mv" id="rpt-best">—</div><div class="rpt-ml">Best month</div></div>
+    </div>
+  </div>
+
+  <!-- 20-year overall -->
+  <div class="card" style="margin-top:10px;">
+    <div class="ct">🏆 20-Year Overall Progress</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+      <div style="font-family:'Fraunces',serif;font-size:28px;color:var(--hl);" id="overall-pct">0%</div>
+      <div style="font-size:10px;color:var(--t3);" id="overall-sub">of 20-year journey</div>
+    </div>
+    <div style="height:7px;background:var(--d5);border-radius:4px;overflow:hidden;margin-bottom:10px;">
+      <div style="height:100%;border-radius:4px;background:linear-gradient(90deg,var(--hd),var(--hl));transition:width 1s ease;width:0%;" id="overall-bar"></div>
+    </div>
+    <div id="yr20-list"></div>
+  </div>
+
+  <!-- Export -->
+  <div class="xpanel">
+    <div class="xp-t">🐝 Export Hive Data</div>
+    <div class="xbtn" onclick="exportExcel()"><div class="xi" style="background:rgba(76,175,122,.15);">📊</div><div><div class="xn">Download Excel (5 Sheets)</div><div class="xs2">Dashboard · Tasks · Portfolio · Projections · Ledger</div></div><div style="margin-left:auto;color:var(--t3);">↓</div></div>
+    <div class="xbtn" onclick="exportCSV()"><div class="xi" style="background:rgba(80,144,232,.12);">📄</div><div><div class="xn">Download CSV</div><div class="xs2">Import to Google Sheets</div></div><div style="margin-left:auto;color:var(--t3);">↓</div></div>
+    <div class="xbtn" onclick="exportJSON()"><div class="xi" style="background:rgba(232,146,10,.1);">💾</div><div><div class="xn">Full Backup (JSON)</div><div class="xs2">All data · restore on any device</div></div><div style="margin-left:auto;color:var(--t3);">↓</div></div>
+    <div class="xbtn" onclick="importJSON()"><div class="xi" style="background:rgba(160,112,224,.12);">📥</div><div><div class="xn">Restore Backup</div><div class="xs2">Import previously saved JSON</div></div><div style="margin-left:auto;color:var(--t3);">↑</div></div>
+    <input type="file" id="import-file" accept=".json" style="display:none;" onchange="handleImport(event)">
+  </div>
+
+  <!-- Google Drive -->
+  <div class="gdrive-panel">
+    <div class="gd-title">☁️ Google Drive Sync</div>
+    <div class="gd-note">To keep 20 years of data safe: download the JSON backup monthly and upload to a folder named "TheHive_Wealth" in your Google Drive. On iPhone: use Files app → Google Drive integration. This protects your entire wealth journey.</div>
+    <div class="xbtn" style="margin-top:4px;" onclick="exportJSON()"><div class="xi" style="background:rgba(76,175,122,.15);">☁️</div><div><div class="xn">Export for Google Drive</div><div class="xs2">Save this JSON to your Drive folder</div></div><div style="margin-left:auto;color:var(--t3);">↓</div></div>
+  </div>
+
+  <!-- Year-by-year report cards -->
+  <div class="tsec" style="padding-top:16px;">📅 Year-by-Year Report <span style="color:var(--t4);font-size:9px;">— tap to expand</span></div>
+  <div id="year-report-list"></div>
+  <div style="height:10px;"></div>
+</div>
+
+</div><!-- /scroll -->
+
+<!-- NAV -->
+<div class="nav">
+  <button class="nb on" onclick="goNav('home',this)"><div class="nb-i">🏠</div><span>Home</span></button>
+  <button class="nb" onclick="goNav('tasks',this)"><div class="nb-i">✅</div><span>Tasks</span></button>
+  <button class="nb" onclick="goNav('invest',this)"><div class="nb-i">📈</div><span>Invest</span></button>
+  <button class="nb" onclick="goNav('ideas',this)"><div class="nb-i">🍯</div><span>Ideas</span></button>
+  <button class="nb" onclick="goNav('report',this)"><div class="nb-i">📊</div><span>Report</span></button>
+</div>
+</div><!-- /app -->
+
+<!-- DETAIL PAGE -->
+<div id="detail-page">
+  <div class="dp-hdr" id="dp-hdr">
+    <div class="dp-back" onclick="closeDetail()">← Back</div>
+    <div class="dp-emoji" id="dp-emoji"></div>
+    <div class="dp-num" id="dp-num"></div>
+    <div class="dp-title" id="dp-title"></div>
+    <div class="dp-impact" id="dp-impact"></div>
+  </div>
+  <div class="dp-body" id="dp-body"></div>
+</div>
+
+<!-- TASK MODAL -->
+<div class="overlay" id="task-modal" onclick="closeOuter(event,'task-modal')">
+  <div class="modal">
+    <div class="modal-t" id="modal-title">Add Task</div>
+    <div class="mf"><label>Task Name *</label><input id="mt-name" placeholder="e.g. Transfer to PPF" maxlength="80"></div>
+    <div class="mf"><label>Notes</label><input id="mt-sub" placeholder="e.g. HDFC Bank · 5th of month" maxlength="80"></div>
+    <div class="mf"><label>Amount (optional)</label><input id="mt-amt" placeholder="e.g. ₹5,000"></div>
+    <div class="mf"><label>Category</label><select id="mt-cat"><option value="investment">💰 Investment</option><option value="savings">🍯 Savings/Fund</option><option value="bill">🏠 Bill/EMI</option><option value="review">🔍 Review</option><option value="habit">🌻 Habit</option></select></div>
+    <div class="modal-btns"><button class="mbt mbt-c" onclick="closeTaskModal()">Cancel</button><button class="mbt mbt-s" onclick="saveTask()">Save Task</button></div>
+  </div>
+</div>
+
+<!-- INCOME MODAL -->
+<div class="overlay" id="income-modal" onclick="closeOuter(event,'income-modal')">
+  <div class="modal">
+    <div class="modal-t">✏️ Edit Income &amp; Plan</div>
+    <div style="font-size:11px;color:var(--t3);margin-bottom:12px;">All sections will recalculate automatically when you save.</div>
+    <div class="mf"><label>Husband Income (₹/month)</label><input id="ed-hus" type="number" placeholder="20000"></div>
+    <div class="mf"><label>Wife Income (₹/month)</label><input id="ed-wife" type="number" placeholder="50000"></div>
+    <div class="mf"><label>Monthly EMI (₹)</label><input id="ed-emi" type="number" placeholder="20000"></div>
+    <div class="mf"><label>SIP Amount (₹/month)</label><input id="ed-sip" type="number" placeholder="15000"></div>
+    <div class="mf"><label>Gold Investment (₹/month)</label><input id="ed-gold" type="number" placeholder="5000"></div>
+    <div class="mf"><label>Emergency Fund Target (₹/month)</label><input id="ed-emerg" type="number" placeholder="5000"></div>
+    <div class="mf"><label>Travel Fund (₹/month)</label><input id="ed-travel" type="number" placeholder="5000"></div>
+    <div class="modal-btns"><button class="mbt mbt-c" onclick="closeIncomeModal()">Cancel</button><button class="mbt mbt-s" onclick="saveIncome()">Save Changes</button></div>
+  </div>
+</div>
+
+<!-- LEDGER MODAL -->
+<div class="overlay" id="ledger-modal" onclick="closeOuter(event,'ledger-modal')">
+  <div class="modal">
+    <div class="modal-t">💰 This Month's Actual Spending</div>
+    <div style="font-size:11px;color:var(--t3);margin-bottom:12px;">Enter what actually happened this month. The app will show you over/under vs plan.</div>
+    <div class="mf"><label>SIP Actually Invested (₹)</label><input id="ld-sip" type="number" placeholder="15000"></div>
+    <div class="mf"><label>Gold Actually Invested (₹)</label><input id="ld-gold" type="number" placeholder="5000"></div>
+    <div class="mf"><label>Emergency Fund Deposited (₹)</label><input id="ld-emerg" type="number" placeholder="5000"></div>
+    <div class="mf"><label>Travel Fund Deposited (₹)</label><input id="ld-travel" type="number" placeholder="5000"></div>
+    <div class="mf"><label>Actual Expenses This Month (₹)</label><input id="ld-exp" type="number" placeholder="20000"></div>
+    <div class="mf"><label>Extra Savings This Month (₹)</label><input id="ld-extra" type="number" placeholder="0"></div>
+    <div class="mf"><label>Emergency Fund USED This Month (₹)</label><input id="ld-used" type="number" placeholder="0"></div>
+    <div class="modal-btns"><button class="mbt mbt-c" onclick="closeLedgerModal()">Cancel</button><button class="mbt mbt-s" onclick="saveLedger()">Save Actuals</button></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════════════
+// CONSTANTS
+// ══════════════════════════════════════════════════════
+const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const MS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const START_YEAR=2025, TOTAL_YEARS=20;
+const NOW=new Date(), CY=NOW.getFullYear(), CM=NOW.getMonth();
+let vY=CY, vM=CM; // viewing year/month
+let editId=null, editType=null, addType=null;
+
+document.getElementById('hdr-sub').textContent=NOW.toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+document.getElementById('hdr-pill').textContent=MS[CM]+' '+CY;
+
+// ══════════════════════════════════════════════════════
+// STORAGE
+// ══════════════════════════════════════════════════════
+const LS={
+  get(k){try{return JSON.parse(localStorage.getItem(k));}catch{return null;}},
+  set(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch{}},
+  del(k){try{localStorage.removeItem(k);}catch{}},
+  keys(){try{return Object.keys(localStorage);}catch{return[];}}
+};
+const K={
+  plan:()=>'hv4_plan',
+  mt:(yr,mo)=>`hv4_mt_${yr}_${mo}`,
+  qt:(yr,mo)=>`hv4_qt_${yr}_${mo}`,
+  ch:(yr,mo)=>`hv4_ch_${yr}_${mo}`,
+  ld:(yr,mo)=>`hv4_ld_${yr}_${mo}`,
+  sv:(yr,mo)=>`hv4_sv_${yr}_${mo}`,
+};
+
+// ══════════════════════════════════════════════════════
+// PLAN
+// ══════════════════════════════════════════════════════
+const DEF={husIncome:20000,wifeIncome:50000,emi:20000,sip:15000,gold:5000,emerg:5000,travel:5000};
+function getPlan(){return Object.assign({},DEF,LS.get(K.plan())||{});}
+
+function openEditIncome(){
+  const p=getPlan();
+  ['hus','wife','emi','sip','gold','emerg','travel'].forEach(k=>document.getElementById('ed-'+k).value=p[k==='hus'?'husIncome':k==='wife'?'wifeIncome':k]||'');
+  document.getElementById('income-modal').classList.add('on');
+}
+function closeIncomeModal(){document.getElementById('income-modal').classList.remove('on');}
+function saveIncome(){
+  const p={
+    husIncome:+document.getElementById('ed-hus').value||0,
+    wifeIncome:+document.getElementById('ed-wife').value||0,
+    emi:+document.getElementById('ed-emi').value||0,
+    sip:+document.getElementById('ed-sip').value||0,
+    gold:+document.getElementById('ed-gold').value||0,
+    emerg:+document.getElementById('ed-emerg').value||0,
+    travel:+document.getElementById('ed-travel').value||0,
+  };
+  LS.set(K.plan(),p);
+  closeIncomeModal();
+  updateHome();
+  renderTasks();
+  toast('💰 Plan updated — all sections recalculated!');
+}
+
+function updateHome(){
+  const p=getPlan();
+  const total=p.husIncome+p.wifeIncome;
+  const afterEmi=total-p.emi;
+  const invest=p.sip+p.gold;
+  document.getElementById('h-income').textContent='₹'+fmt(total);
+  document.getElementById('h-after-emi').textContent='₹'+fmt(afterEmi);
+  document.getElementById('h-invest').textContent='₹'+fmt(invest);
+  // Allocation bars
+  const exp=Math.max(0,afterEmi-invest-p.emerg-p.travel);
+  const alloc=[
+    {n:'Regular Expenses',v:exp,c:'linear-gradient(90deg,#3070C0,#5090E8)'},
+    {n:'SIP Mutual Funds',v:p.sip,c:'linear-gradient(90deg,#1A5030,#4CAF7A)'},
+    {n:'Emergency Fund',v:p.emerg,c:'linear-gradient(90deg,#802020,#E05050)'},
+    {n:'Gold (SGB+ETF)',v:p.gold,c:'linear-gradient(90deg,var(--hd),var(--h))'},
+    {n:'Travel Fund (RD)',v:p.travel,c:'linear-gradient(90deg,#5020A0,#A070E0)'},
+  ];
+  document.getElementById('home-alloc').innerHTML=alloc.map(a=>{
+    const pct=afterEmi>0?Math.round(a.v/afterEmi*100):0;
+    return`<div class="pr"><div class="pr-row"><span class="pr-name">${a.n}</span><span class="pr-val">₹${fmt(a.v)} · ${pct}%</span></div><div class="pr-track"><div class="pr-fill" style="width:${pct}%;background:${a.c};"></div></div></div>`;
+  }).join('');
+  updateTargetRing();
+  updateDashProg();
+}
+
+function updateTargetRing(){
+  const p=getPlan();
+  const invest=p.sip+p.gold;
+  const target=39700000;
+  const monthsElapsed=Math.max(1,(CY-START_YEAR)*12+CM+1);
+  const r=0.13/12;
+  let corpus=0;
+  for(let i=0;i<Math.min(monthsElapsed,240);i++) corpus=(corpus+invest)*(1+r);
+  const pct=Math.min(Math.round(corpus/target*100),100);
+  const circ=182.2;
+  document.getElementById('ta-pct').textContent=pct+'%';
+  document.getElementById('ta-arc').style.strokeDashoffset=circ-(circ*pct/100);
+  document.getElementById('ta-stats').innerHTML=`
+    <div class="ta-row"><span class="ta-key">Est. Corpus Now</span><span class="ta-v" style="color:var(--h);">₹${fmtL(Math.round(corpus))}</span></div>
+    <div class="ta-row"><span class="ta-key">20-Yr Target</span><span class="ta-v">₹3.97 Cr</span></div>
+    <div class="ta-row"><span class="ta-key">Total Invested</span><span class="ta-v">₹${fmtL(invest*monthsElapsed)}</span></div>
+    <div class="ta-row"><span class="ta-key">Time Elapsed</span><span class="ta-v">${monthsElapsed} months</span></div>`;
+}
+
+function updateDashProg(){
+  const mt=getMT(CY,CM);
+  const done=mt.filter(t=>isChk(t.id,CY,CM)).length;
+  const pct=mt.length?Math.round(done/mt.length*100):0;
+  const saved=isSaved(CY,CM);
+  const c=pct===100?'#4CAF7A':'#E8920A';
+  document.getElementById('dash-prog').innerHTML=`
+    <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:8px;">
+      <span style="color:var(--t2);">${MS[CM]} ${CY}${saved?' <span style="color:var(--gr);font-size:9px;"> ● SAVED</span>':''}</span>
+      <span style="color:${c};font-weight:600;">${done}/${mt.length} · ${pct}%</span>
+    </div>
+    <div style="height:5px;background:var(--d5);border-radius:3px;overflow:hidden;margin-bottom:6px;">
+      <div style="height:100%;width:${pct}%;background:${c};border-radius:3px;transition:width .6s;"></div>
+    </div>
+    <div style="font-size:10px;color:var(--t3);">${pct===100?'🎉 All tasks done — hive is thriving!':pct>=75?'🐝 Almost there!':pct>=50?'🌻 Good progress — keep going!':'Every task = more honey 🍯'}</div>`;
+}
+
+// ══════════════════════════════════════════════════════
+// DEFAULT TASKS
+// ══════════════════════════════════════════════════════
+const DEF_MT=[
+  {id:'sip',   name:'Transfer to SIP',          sub:'Zerodha/Groww · 5th of month',   cat:'investment'},
+  {id:'gold',  name:'Transfer to Gold',          sub:'SGB/Digital Gold · Zerodha',     cat:'investment'},
+  {id:'emi',   name:'Confirm EMI cleared',       sub:'Home/Vehicle loan payment',      cat:'bill'},
+  {id:'emerg', name:'Transfer to Emergency Fund',sub:'IDFC First Bank savings',        cat:'savings'},
+  {id:'travel',name:'Transfer to Travel RD',     sub:'Recurring Deposit account',      cat:'savings'},
+  {id:'budget',name:'Review monthly expenses',   sub:'Keep within planned budget',     cat:'review'},
+  {id:'track', name:'Update portfolio value',    sub:'Groww / Zerodha / ET Money',     cat:'review'},
+  {id:'spend', name:'No impulse spending',        sub:'Every rupee saved = more honey', cat:'habit'},
+];
+const DEF_QT=[
+  {id:'q_reb',  name:'Rebalance mutual fund portfolio',sub:'Review fund split',             cat:'review'},
+  {id:'q_step', name:'Review SIP step-up 10%',        sub:'Increase if income grew',       cat:'investment'},
+  {id:'q_em',   name:'Check Emergency Fund balance',  sub:'Target ₹1,20,000 total',        cat:'savings'},
+  {id:'q_ins',  name:'Review life & health insurance',sub:'Coverage adequate?',            cat:'review'},
+  {id:'q_tax',  name:'Plan 80C / 80D investments',    sub:'Before March 31 deadline',      cat:'bill'},
+];
+
+function getMT(yr,mo){
+  const saved=LS.get(K.mt(yr,mo));
+  if(saved) return saved;
+  const p=getPlan();
+  const amtMap={sip:p.sip,gold:p.gold,emi:p.emi,emerg:p.emerg,travel:p.travel};
+  return DEF_MT.map(t=>({...t,amt:amtMap[t.id]?'₹'+fmt(amtMap[t.id]):''}));
+}
+function getQT(yr,mo){return LS.get(K.qt(yr,mo))||DEF_QT.map(t=>({...t}));}
+function saveMT(t,yr,mo){LS.set(K.mt(yr,mo),t);}
+function saveQT(t,yr,mo){LS.set(K.qt(yr,mo),t);}
+function isChk(id,yr,mo){return !!(LS.get(K.ch(yr,mo))||{})[id];}
+function setChk(id,yr,mo,v){const c=LS.get(K.ch(yr,mo))||{};if(v)c[id]=1;else delete c[id];LS.set(K.ch(yr,mo),c);}
+function isSaved(yr,mo){return !!LS.get(K.sv(yr,mo));}
+
+// ══════════════════════════════════════════════════════
+// LEDGER
+// ══════════════════════════════════════════════════════
+function getLedger(yr,mo){return LS.get(K.ld(yr,mo))||{};}
+
+function openLedger(){
+  const l=getLedger(vY,vM);
+  ['sip','gold','emerg','travel','exp','extra','used'].forEach(k=>{
+    const el=document.getElementById('ld-'+k);
+    if(el) el.value=l[k]!=null?l[k]:'';
+  });
+  document.getElementById('ledger-modal').classList.add('on');
+}
+function closeLedgerModal(){document.getElementById('ledger-modal').classList.remove('on');}
+function saveLedger(){
+  const l={};
+  ['sip','gold','emerg','travel','exp','extra','used'].forEach(k=>{
+    const v=+document.getElementById('ld-'+k).value;
+    if(v) l[k]=v;
+  });
+  LS.set(K.ld(vY,vM),l);
+  closeLedgerModal();
+  renderLedger();
+  toast('💰 Actuals saved for '+MS[vM]+' '+vY);
+}
+
+function renderLedger(){
+  const p=getPlan();
+  const l=getLedger(vY,vM);
+  const afterEmi=p.husIncome+p.wifeIncome-p.emi;
+  const expPlan=Math.max(0,afterEmi-p.sip-p.gold-p.emerg-p.travel);
+  const items=[
+    {e:'📈',n:'SIP Invested',     plan:p.sip,   act:l.sip,   k:'sip'},
+    {e:'🥇',n:'Gold Invested',    plan:p.gold,  act:l.gold,  k:'gold'},
+    {e:'🚨',n:'Emergency Fund',   plan:p.emerg, act:l.emerg, k:'emerg'},
+    {e:'✈️',n:'Travel Fund',      plan:p.travel,act:l.travel,k:'travel'},
+    {e:'🏠',n:'Expenses',         plan:expPlan, act:l.exp,   k:'exp'},
+    {e:'💰',n:'Extra Savings',    plan:0,       act:l.extra, k:'extra',bonus:true},
+    {e:'🚑',n:'Emergency Used',   plan:0,       act:l.used,  k:'used',danger:true},
+  ];
+  document.getElementById('ledger-list').innerHTML=items.map(it=>{
+    const act=it.act!=null?it.act:null;
+    let diff=null,cls='same',diffTxt='Not entered';
+    if(act!=null){
+      if(it.bonus){diff=act;cls='under';diffTxt=act>0?'+₹'+fmt(act)+' extra saved':'On plan';}
+      else if(it.danger){diff=-act;cls=act>0?'over':'same';diffTxt=act>0?'₹'+fmt(act)+' used':'None used';}
+      else{diff=act-it.plan;cls=diff>=0&&!it.k.startsWith('exp')?'under':diff<0&&!it.k.startsWith('exp')?'over':diff<=0?'under':'over';diffTxt=diff>0?'+'+'₹'+fmt(diff):diff<0?'-₹'+fmt(Math.abs(diff)):'On plan';}
+    }
+    return`<div class="led-row" onclick="openLedger()">
+      <div class="led-icon" style="background:rgba(232,146,10,.08);">${it.e}</div>
+      <div class="led-info"><div class="led-name">${it.n}</div><div class="led-sub">Plan: ${it.plan?'₹'+fmt(it.plan):'—'}</div></div>
+      <div class="led-right">
+        <div class="led-budget">Budgeted</div>
+        <div class="led-actual ${cls}">${act!=null?'₹'+fmt(act):'Tap to add'}</div>
+        <div class="led-diff ${cls}">${diffTxt}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════════════════
+// YEAR TABS + MONTH STRIP
+// ══════════════════════════════════════════════════════
+function renderYearTabs(){
+  const el=document.getElementById('year-tabs');
+  let html='';
+  for(let yr=START_YEAR;yr<START_YEAR+TOTAL_YEARS;yr++){
+    const fut=yr>CY, done=!fut&&isYearComplete(yr);
+    html+=`<div class="ytab${yr===vY?' on':''}${done?' done':''}${fut?' future':''}" onclick="${fut?'':('setVY('+yr+')')}">${yr}</div>`;
+  }
+  el.innerHTML=html;
+  // scroll to active
+  setTimeout(()=>{const a=el.querySelector('.on');if(a)a.scrollIntoView({inline:'center',block:'nearest'});},50);
+}
+function isYearComplete(yr){
+  const max=yr<CY?11:(yr===CY?CM:-1);
+  if(max<0) return false;
+  for(let m=0;m<=max;m++) if(!isSaved(yr,m)) return false;
+  return true;
+}
+function setVY(yr){
+  vY=yr;
+  vM=yr<CY?0:(yr===CY?CM:0);
+  renderYearTabs(); renderMonthStrip(); renderTasks();
+}
+
+function renderMonthStrip(){
+  const el=document.getElementById('month-strip');
+  let html='';
+  for(let m=0;m<12;m++){
+    const fut=vY>CY||(vY===CY&&m>CM);
+    const saved=isSaved(vY,m);
+    html+=`<div class="mbtn${m===vM&&!fut?' on':''}${saved?' saved':''}${fut?' future':''}" onclick="${fut?'':('setVM('+m+')')}">${MS[m]}${saved?' ✓':''}</div>`;
+  }
+  el.innerHTML=html;
+  setTimeout(()=>{const a=el.querySelector('.on');if(a)a.scrollIntoView({inline:'center',block:'nearest'});},50);
+}
+function setVM(m){vM=m;renderMonthStrip();renderTasks();}
+
+// ══════════════════════════════════════════════════════
+// TASKS
+// ══════════════════════════════════════════════════════
+function renderTasks(){
+  const mt=getMT(vY,vM), qt=getQT(vY,vM);
+  const done=mt.filter(t=>isChk(t.id,vY,vM)).length;
+  const pct=mt.length?Math.round(done/mt.length*100):0;
+  const saved=isSaved(vY,vM);
+  document.getElementById('task-month-label').textContent=MONTHS[vM]+' '+vY;
+  document.getElementById('msfill').style.width=pct+'%';
+  document.getElementById('ms-left').textContent=done+' of '+mt.length;
+  document.getElementById('ms-right').textContent=pct+'%';
+  document.getElementById('saved-pill-wrap').innerHTML=saved?'<div class="saved-pill">✓ Saved</div>':'';
+  document.getElementById('monthly-list').innerHTML=mt.map(t=>taskRow(t,'m')).join('');
+  document.getElementById('quarterly-list').innerHTML=qt.map(t=>taskRow(t,'q')).join('');
+  renderLedger();
+}
+
+function taskRow(t,type){
+  const done=isChk(t.id,vY,vM);
+  const e={investment:'💰',savings:'🍯',bill:'🏠',review:'🔍',habit:'🌻'}[t.cat]||'🐝';
+  return`<div class="ti">
+    <div class="tch ${done?'done':''}" onclick="toggleChk('${esc(t.id)}','${type}')"></div>
+    <div style="flex:1;" onclick="toggleChk('${esc(t.id)}','${type}')">
+      <div class="tn ${done?'done':''}">${e} ${esc(t.name)}</div>
+      <div class="tsub">${esc(t.sub||'')}${t.amt?' <span class="tamt">'+esc(t.amt)+'</span>':''}</div>
+    </div>
+    <div class="t-acts">
+      <button class="t-act" onclick="openEdit('${esc(t.id)}','${type}',event)">✏️</button>
+      <button class="t-act" onclick="delTask('${esc(t.id)}','${type}',event)">🗑️</button>
+    </div>
+  </div>`;
+}
+function toggleChk(id,type){
+  setChk(id,vY,vM,!isChk(id,vY,vM));
+  renderTasks(); updateDashProg();
+}
+
+// ══════════════════════════════════════════════════════
+// SAVE MONTH → auto-advance
+// ══════════════════════════════════════════════════════
+function saveMonth(){
+  const mt=getMT(vY,vM);
+  const done=mt.filter(t=>isChk(t.id,vY,vM)).length;
+  LS.set(K.sv(vY,vM),{savedAt:new Date().toISOString(),done,total:mt.length,pct:mt.length?Math.round(done/mt.length*100):0});
+  renderYearTabs(); renderMonthStrip(); renderTasks(); updateDashProg();
+  // advance
+  let nY=vY,nM=vM+1;
+  if(nM>11){nM=0;nY++;}
+  const canAdv=nY<START_YEAR+TOTAL_YEARS&&(nY<CY||(nY===CY&&nM<=CM));
+  if(canAdv){
+    toast('✓ '+MS[vM]+' saved! Opening '+MS[nM]+' '+nY+'…');
+    setTimeout(()=>{
+      if(nY!==vY){vY=nY;renderYearTabs();}
+      vM=nM; renderMonthStrip(); renderTasks();
+    },700);
+  } else {
+    toast('🍯 '+MS[vM]+' '+vY+' saved!');
+  }
+}
+function resetMonth(){
+  if(!confirm('Reset all checkboxes for '+MONTHS[vM]+' '+vY+'?')) return;
+  LS.del(K.ch(vY,vM)); LS.del(K.sv(vY,vM));
+  renderYearTabs(); renderMonthStrip(); renderTasks(); updateDashProg();
+  toast('Month reset');
+}
+
+// ══════════════════════════════════════════════════════
+// TASK MODAL
+// ══════════════════════════════════════════════════════
+function openAddTask(type){
+  addType=type; editId=null;
+  document.getElementById('modal-title').textContent='Add '+(type==='m'?'Monthly Task':'Quarterly Goal');
+  ['mt-name','mt-sub','mt-amt'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('mt-cat').value='investment';
+  document.getElementById('task-modal').classList.add('on');
+  setTimeout(()=>document.getElementById('mt-name').focus(),300);
+}
+function openEdit(id,type,ev){
+  ev.stopPropagation();
+  const tasks=type==='m'?getMT(vY,vM):getQT(vY,vM);
+  const t=tasks.find(x=>x.id===id); if(!t) return;
+  editId=id; editType=type; addType=null;
+  document.getElementById('modal-title').textContent='Edit Task';
+  document.getElementById('mt-name').value=t.name;
+  document.getElementById('mt-sub').value=t.sub||'';
+  document.getElementById('mt-amt').value=t.amt||'';
+  document.getElementById('mt-cat').value=t.cat||'investment';
+  document.getElementById('task-modal').classList.add('on');
+  setTimeout(()=>document.getElementById('mt-name').focus(),300);
+}
+function saveTask(){
+  const name=document.getElementById('mt-name').value.trim();
+  if(!name){toast('Enter a task name');return;}
+  const task={id:editId||'c_'+Date.now(),name,sub:document.getElementById('mt-sub').value.trim(),amt:document.getElementById('mt-amt').value.trim(),cat:document.getElementById('mt-cat').value};
+  const type=editId?editType:addType;
+  if(editId){
+    for(let yr=START_YEAR;yr<START_YEAR+TOTAL_YEARS;yr++) for(let m=0;m<12;m++){
+      const fn=type==='m'?getMT:getQT, fs=type==='m'?saveMT:saveQT;
+      const tasks=fn(yr,m), idx=tasks.findIndex(x=>x.id===editId);
+      if(idx>=0){tasks[idx]={...tasks[idx],...task};fs(tasks,yr,m);}
+    }
+    toast('Task updated everywhere 🐝');
+  } else {
+    for(let yr=vY;yr<START_YEAR+TOTAL_YEARS;yr++) for(let m=(yr===vY?vM:0);m<12;m++){
+      const fn=addType==='m'?getMT:getQT, fs=addType==='m'?saveMT:saveQT;
+      const tasks=fn(yr,m);
+      if(!tasks.find(x=>x.id===task.id)) tasks.push(task);
+      fs(tasks,yr,m);
+    }
+    toast('Task added from '+MS[vM]+' onwards 🌻');
+  }
+  closeTaskModal(); renderTasks();
+}
+function delTask(id,type,ev){
+  ev.stopPropagation();
+  if(!confirm('Delete this task from all months?')) return;
+  for(let yr=START_YEAR;yr<START_YEAR+TOTAL_YEARS;yr++) for(let m=0;m<12;m++){
+    const fn=type==='m'?getMT:getQT, fs=type==='m'?saveMT:saveQT;
+    fs(fn(yr,m).filter(x=>x.id!==id),yr,m);
+    setChk(id,yr,m,false);
+  }
+  toast('Task deleted'); renderTasks();
+}
+function closeTaskModal(){document.getElementById('task-modal').classList.remove('on');}
+function closeOuter(ev,id){if(ev.target.id===id)document.getElementById(id).classList.remove('on');}
+
+// ══════════════════════════════════════════════════════
+// REPORT
+// ══════════════════════════════════════════════════════
+function renderReport(){
+  const p=getPlan();
+  // Annual stats for viewing year (report shows current year by default)
+  const yr=CY;
+  let tDone=0,tPoss=0,savedCnt=0,bestPct=0,bestM='—',streak=0,curS=0;
+  for(let m=0;m<=CM;m++){
+    const mt=getMT(yr,m);
+    const done=mt.filter(t=>isChk(t.id,yr,m)).length;
+    tDone+=done; tPoss+=mt.length;
+    if(isSaved(yr,m)) savedCnt++;
+    const p2=mt.length?Math.round(done/mt.length*100):0;
+    if(p2>bestPct){bestPct=p2;bestM=MS[m];}
+    if(p2===100){curS++;streak=Math.max(streak,curS);}else curS=0;
+  }
+  const ann=tPoss?Math.round(tDone/tPoss*100):0;
+  document.getElementById('rpt-yr-lbl').textContent=yr+' Hive Report';
+  document.getElementById('rpt-pct').textContent=ann+'%';
+  document.getElementById('rpt-done').textContent=tDone;
+  document.getElementById('rpt-saved').textContent=savedCnt;
+  document.getElementById('rpt-streak').textContent=streak;
+  document.getElementById('rpt-best').textContent=bestM;
+  document.getElementById('rpt-inv').textContent='₹'+fmtL((CM+1)*(p.sip+p.gold));
+
+  // 20-year progress
+  let totalD=0,totalP=0,yr20html='';
+  for(let y=START_YEAR;y<START_YEAR+TOTAL_YEARS;y++){
+    const maxM=y<CY?11:(y===CY?CM:-1);
+    if(maxM<0){yr20html+=`<div class="yr20-row"><div class="yr20-lbl" style="color:var(--t4);">${y}</div><div class="yr20-bar"></div><div class="yr20-val" style="color:var(--t4);">—</div></div>`;continue;}
+    let yd=0,yt=0;
+    for(let m=0;m<=maxM;m++){const mt=getMT(y,m);yd+=mt.filter(t=>isChk(t.id,y,m)).length;yt+=mt.length;}
+    totalD+=yd;totalP+=yt;
+    const pp=yt?Math.round(yd/yt*100):0;
+    const fc=pp>=80?'#4CAF7A':pp>=50?'#E8920A':'#E05050';
+    yr20html+=`<div class="yr20-row"><div class="yr20-lbl">${y}</div><div class="yr20-bar"><div class="yr20-fill" style="width:${pp}%;background:${fc};"></div></div><div class="yr20-val" style="color:${fc};">${yd}/${yt}</div></div>`;
+  }
+  document.getElementById('yr20-list').innerHTML=yr20html;
+  const ov=totalP?Math.round(totalD/totalP*100):0;
+  document.getElementById('overall-pct').textContent=ov+'%';
+  document.getElementById('overall-bar').style.width=ov+'%';
+  document.getElementById('overall-sub').textContent=`${totalD} tasks done of all years`;
+
+  // Year-by-year cards
+  let cardHtml='';
+  for(let y=START_YEAR;y<START_YEAR+TOTAL_YEARS;y++){
+    const fut=y>CY;
+    let yd=0,yt=0,savedMs=0,moHtml='';
+    for(let m=0;m<12;m++){
+      const mfut=y>CY||(y===CY&&m>CM);
+      const mt=getMT(y,m);
+      const done=mt.filter(t=>isChk(t.id,y,m)).length;
+      const tot=mt.length;
+      if(!mfut){yd+=done;yt+=tot;if(isSaved(y,m))savedMs++;}
+      const pp=tot&&!mfut?Math.round(done/tot*100):0;
+      const fc=pp>=80?'#4CAF7A':pp>=50?'#E8920A':pp>0?'#E05050':'#333';
+      const clickable=!mfut;
+      moHtml+=`<div class="yrm-row${mfut?' future':''}" ${clickable?`onclick="jumpToMonth(${y},${m})"`:''}>
+        <div class="yrm-name">${MS[m]}</div>
+        <div class="yrm-bar"><div class="yrm-fill" style="width:${mfut?0:pp}%;background:${fc};"></div></div>
+        <div class="yrm-pct">${mfut?'—':done+'/'+tot}</div>
+        ${isSaved(y,m)?'<span style="font-size:9px;color:var(--gr);">✓</span>':''}
+      </div>`;
+    }
+    const ypct=yt?Math.round(yd/yt*100):0;
+    const sc=ypct>=80?'g':ypct>=50?'a':'r';
+    cardHtml+=`<div class="yr-card">
+      <div class="yr-hdr" onclick="toggleYr('yb-${y}','yc-${y}')">
+        <div class="yr-title">📅 ${y}${y===CY?' (Current)':y<CY?' ✓':' (Future)'}</div>
+        <div class="yr-right">
+          ${fut?'<span class="yr-pill a">Upcoming</span>':`<span class="yr-pill ${sc}">${yd}/${yt} · ${ypct}%</span>`}
+          <div class="chevron" id="yc-${y}"></div>
+        </div>
+      </div>
+      <div class="yr-body" id="yb-${y}">
+        ${!fut?`<div style="font-size:10px;color:var(--t3);margin-bottom:8px;">📌 ${savedMs} months saved · 💰 ₹${fmtL(12*(getPlan().sip+getPlan().gold))} planned/yr</div>`:''}
+        ${moHtml}
+      </div>
+    </div>`;
+  }
+  document.getElementById('year-report-list').innerHTML=cardHtml;
+}
+function toggleYr(bid,cid){
+  document.getElementById(bid).classList.toggle('on');
+  document.getElementById(cid).classList.toggle('open');
+}
+function jumpToMonth(yr,mo){
+  goNav('tasks',document.querySelectorAll('.nb')[1]);
+  vY=yr; vM=mo;
+  renderYearTabs(); renderMonthStrip(); renderTasks();
+}
+
+// ══════════════════════════════════════════════════════
+// 20 INVEST TIPS
+// ══════════════════════════════════════════════════════
+const TIPS=[
+ {e:'📈',t:'Start SIP First Day of Income',cat:'Foundation',imp:'₹15K×20yr = ₹3.97Cr',
+  prev:'Automate before you even see the money — the most powerful habit.',
+  overview:'The single most powerful financial habit is to invest before you spend. Set a standing instruction on the same day your salary credits. Your brain adjusts to the lower amount automatically. This one habit is responsible for 80% of your ₹3.97Cr target.',
+  when:'Month 1 — today. Set the standing instruction this week.',
+  steps:[{t:'Open Zerodha or Groww',d:'Free account, Aadhaar KYC — takes 30 min online.'},{t:'Set SIP standing instruction on salary day',d:'Salary on 1st → SIP on 2nd. Salary on 25th → SIP on 26th. Never delay by even 1 day.'},{t:'Choose DIRECT plans only',d:'Direct plans have 0.5–1% lower expense ratio = ₹20–40 Lakhs saved over 20 years vs regular plans.'},{t:'Never cancel SIP — ever',d:'Down markets = you buy more units cheaply. SIP in a crash is the greatest wealth multiplier.'}],
+  tips:['Step up SIP 10% every April — one phone reminder changes your entire trajectory','Direct plans beat regular plans by ₹20–40L over 20 years','SIP in volatile funds gives best average cost over 20 years'],
+  warning:'Never pause SIP to fund lifestyle expenses. Market dips are buying opportunities, not reasons to stop.',
+  calc:[{l:'Monthly SIP',v:'₹15,000'},{l:'Duration',v:'20 years'},{l:'Expected CAGR',v:'13%'},{l:'Corpus at Year 20',v:'₹3.97 Crore'},{l:'Total amount invested',v:'₹36 Lakhs'},{l:'Wealth created by compounding',v:'₹3.61 Crore'}]},
+ {e:'🥇',t:'Sovereign Gold Bonds Over Physical Gold',cat:'Gold Strategy',imp:'Extra ₹15–20L vs physical gold',
+  prev:'2.5% interest + price gain + zero capital gains tax at maturity.',
+  overview:'SGB beats physical gold in every dimension. You get full gold price exposure, 2.5% annual interest income, and zero capital gains tax if held to 8-year maturity. Physical gold has 10–20% making charges, storage risk, theft risk, and full capital gains tax. SGBs are issued by the Reserve Bank of India — zero credit risk.',
+  when:'Buy in every RBI tranche. Tranches open 4–5 times a year for 5 days each.',
+  steps:[{t:'Register on RBI Retail Direct',d:'rbiretaildirect.org.in — free, 20 min. Link your Aadhaar and bank account.'},{t:'Watch for SGB tranche notifications',d:'Subscribe to RBI email alerts. Tranches open for only 5 days — act fast.'},{t:'Invest ₹3,500/month equivalent in tranches',d:'Buy minimum 1 gram. Maximum 4 kg/year per individual. Wife can also buy 4 kg separately.'},{t:'Hold to maturity (8 years)',d:'Redemption at maturity is 100% tax-free on capital gains. Early redemption loses this benefit.'}],
+  tips:['Set reminder every 3 months to check for new SGB tranche','Buy in wife\'s name too — doubles your 4kg annual limit','SGBs also trade on NSE/BSE — can sell before maturity if emergency (but loses tax benefit)'],
+  warning:'Do NOT redeem SGB before 8 years — you lose the capital gains tax exemption entirely. Plan this as truly long-term.',
+  calc:[{l:'Monthly equivalent investment',v:'₹3,500'},{l:'SGB return: price + interest',v:'~8% price + 2.5% annual = ~10.5%'},{l:'Tax at maturity (8yr)',v:'Zero on capital gains'},{l:'vs Physical gold tax',v:'20% LTCG + 10–20% making charges lost'},{l:'Advantage over 20 years',v:'₹15–20 Lakhs extra'}]},
+ {e:'🏛️',t:'PPF: Guaranteed Tax-Free Corpus',cat:'Safe Returns',imp:'₹40L+ per person, fully guaranteed',
+  prev:'7.1% guaranteed, EEE tax status — completely safe for 15 years.',
+  overview:'PPF (Public Provident Fund) is the safest investment in India with EEE tax status — Exempt at contribution, Exempt during growth, Exempt at withdrawal. At 7.1% guaranteed compounding for 15 years, it creates powerful corpus. Both spouses investing maximises the benefit.',
+  when:'Open accounts immediately at SBI or Post Office. Start with minimum ₹500/year.',
+  steps:[{t:'Open PPF at SBI via YONO app',d:'Takes 20 min from phone. Aadhaar + PAN. No branch visit needed.'},{t:'Set annual standing instruction',d:'Maximum ₹1,50,000/year per account. Deposit in April for maximum interest.'},{t:'Deposit before April 5 each year',d:'PPF calculates interest on minimum balance between 5th and end of month. Deposit by April 5 for full year interest.'},{t:'Extend after 15 years in 5-year blocks',d:'After maturity, extend in 5-year blocks. Money keeps compounding tax-free forever.'}],
+  tips:['PPF account cannot be seized by any court — creditor-proof wealth','Loan available against PPF from Year 3 at very low interest','Sukanya Samriddhi Account for daughters is even better than PPF at 8.2%'],
+  warning:'PPF is a 15-year lock-in. Do not plan to use this money for any medium-term goal. It is purely long-term.',
+  calc:[{l:'Annual investment (max)',v:'₹1,50,000'},{l:'Duration',v:'15 years'},{l:'Return rate (guaranteed)',v:'7.1%'},{l:'Maturity value per person',v:'~₹40.7 Lakhs'},{l:'Both spouses combined',v:'~₹81.4 Lakhs'},{l:'Tax on entire gain',v:'Zero'}]},
+ {e:'📋',t:'NPS for Extra ₹50K Tax Deduction',cat:'Tax + Retirement',imp:'₹20K+/year tax saved — invest it all',
+  prev:'Section 80CCD(1B): ₹50,000 extra deduction OVER and ABOVE 80C limit.',
+  overview:'NPS gives an exclusive ₹50,000 deduction under Section 80CCD(1B) — completely separate from the ₹1.5L 80C limit. Both spouses each getting this deduction = ₹1,00,000 total extra deduction. At 20% tax slab = ₹20,000 tax saved every year. Invested at 13% for 20 years = ₹20L extra corpus just from tax savings.',
+  when:'Open NPS account immediately at enps.nsdl.com. Takes 30 minutes online.',
+  steps:[{t:'Register at enps.nsdl.com',d:'Aadhaar-based KYC. Choose Tier 1 (mandatory retirement account).'},{t:'Choose auto choice (lifecycle fund)',d:'Automatically adjusts equity/bond ratio as you age. Simplest and proven.'},{t:'Invest ₹25,000/year each',d:'₹25K each = ₹50K total = maximum 80CCD(1B) deduction for both.'},{t:'At retirement: 60% lump sum, 40% annuity',d:'60% is tax-free. 40% goes to pension (monthly income for life).'}],
+  tips:['NPS equity gives 10–12% historical returns — better than PPF','Tier 2 NPS account allows flexible withdrawal but no tax benefit','The ₹20K annual tax saving itself is a guaranteed 40% return on ₹50K invested'],
+  warning:'NPS Tier 1 money is locked until age 60. Only invest what you truly do not need before retirement.',
+  calc:[{l:'Investment per year (each)',v:'₹25,000'},{l:'Deduction per spouse',v:'₹50,000 under 80CCD(1B)'},{l:'Tax saved per year (both)',v:'~₹20,000 at 20% slab'},{l:'Invested for 20 years at 13%',v:'~₹23 Lakhs extra'},{l:'NPS corpus (both spouses)',v:'₹20–30 Lakhs+'}]},
+ {e:'📊',t:'Blue-Chip Stocks: Own India\'s Best Companies',cat:'Direct Equity',imp:'14–16% CAGR long-term vs 13% mutual fund',
+  prev:'Reliance, HDFC Bank, TCS — companies that will exist in 20 years.',
+  overview:'Once your Emergency Fund is complete (Month 25), allocating ₹2,000–5,000/month to direct Nifty 50 blue-chip stocks can outperform mutual funds over 10+ years with discipline. No fund manager fee, full control, and dividends that compound powerfully.',
+  when:'After Emergency Fund is fully built (Month 25). Use Zerodha for lowest brokerage.',
+  steps:[{t:'Choose 5–7 quality companies only',d:'Reliance, HDFC Bank, TCS, Infosys, L&T, Asian Paints — proven market leaders.'},{t:'Buy monthly using Zerodha Kite',d:'₹2,000–3,000/month. Enable Stock SIP in Kite for automation.'},{t:'Reinvest all dividends immediately',d:'Never let dividends sit in savings. Buy more shares of the same company.'},{t:'Never sell in a crash',d:'2020 COVID: held for 12 months = 100% gain. Patience is the skill.'}],
+  tips:['Never buy more than 10 stocks — focus compounds returns','Set price alerts, buy on 5–10% dips from 52-week high','Annual report reading: understand the business before owning it'],
+  warning:'Never invest borrowed money in stocks. Never invest what you cannot emotionally handle losing 50% temporarily (before recovery).',
+  calc:[{l:'Monthly investment',v:'₹3,000'},{l:'Duration',v:'15 years'},{l:'Expected CAGR (blue-chip)',v:'14%'},{l:'Estimated corpus',v:'~₹21 Lakhs'},{l:'Plus dividends reinvested',v:'Additional ₹3–5 Lakhs'}]},
+ {e:'🏢',t:'REITs: Real Estate Without Property Headaches',cat:'Real Estate',imp:'7–9% dividend + capital growth',
+  prev:'Own commercial IT parks for ₹1,000 minimum. Quarterly dividends.',
+  overview:'REITs let you own commercial real estate — IT parks, shopping malls, warehouses — with ₹1,000 minimum investment. Embassy REIT owns Bengaluru IT parks. Mindspace REIT owns offices across India. You get rental income as quarterly dividends (7–9% yield) plus property appreciation, with zero landlord headaches.',
+  when:'After Emergency Fund complete and SIP running for 12+ months.',
+  steps:[{t:'Research Embassy REIT and Mindspace REIT on NSE',d:'Both are top-tier. Check occupancy rate (target 90%+) and distribution history.'},{t:'Buy via Zerodha like stocks',d:'REITs trade on NSE/BSE. Buy ₹1,000–2,000 worth monthly.'},{t:'Reinvest quarterly dividends',d:'Dividends arrive quarterly. Immediately reinvest in more REIT units.'},{t:'Hold for 5+ years minimum',d:'REIT value grows with India\'s office market and rental inflation.'}],
+  tips:['Nexus Malls REIT for retail/shopping mall exposure','REIT dividends are partially taxable — but return is still excellent net of tax','Combine REITs (7%) + equity SIP (13%) for optimal portfolio blend'],
+  warning:'REITs fall in economic downturns as office vacancy rises. Never put more than 10–15% of portfolio in REITs.',
+  calc:[{l:'Monthly investment',v:'₹2,000'},{l:'Annual dividend yield',v:'7–9%'},{l:'Price appreciation',v:'~6% p.a.'},{l:'Combined return',v:'~13–15%'},{l:'10-year estimated value',v:'~₹4.5 Lakhs'}]},
+ {e:'🌐',t:'Nasdaq 100: Own Apple, Google, Microsoft',cat:'International',imp:'12–18% USD returns + currency bonus',
+  prev:'India meets Silicon Valley — global tech leaders from your phone.',
+  overview:'Motilal Oswal Nasdaq 100 Fund lets you invest in the world\'s best technology companies from your Zerodha account. You benefit from global tech growth AND rupee depreciation bonus (INR historically loses 3–4% vs USD annually — which adds to your returns). One of the strongest 10-year performers for Indian investors.',
+  when:'After main India SIP is settled (6+ months running). Add ₹1,000–3,000/month as global diversification.',
+  steps:[{t:'Find Motilal Oswal Nasdaq 100 on Zerodha COIN',d:'Available as direct plan. Expense ratio ~0.5%. Choose growth option.'},{t:'Understand the rupee advantage',d:'If Nasdaq gives 14% USD return + rupee falls 3%, you earn ~17% in INR terms.'},{t:'Hold for 7+ years',d:'Nasdaq is volatile year to year (down 30% in 2022) but dominant over decade.'},{t:'Maximum allocation: 15% of portfolio',d:'International = diversification, not concentration.'}],
+  tips:['Parag Parikh Flexi Cap (already in your SIP) has 20–25% US exposure too','Check SEBI regulations on international fund limits — these have changed in past','Mirae Asset NYSE FANG+ ETF for concentrated US tech if you want more exposure'],
+  warning:'Nasdaq fell 33% in 2022. If you cannot hold through such a drop, reduce allocation. Only long-term (7yr+) money here.',
+  calc:[{l:'Monthly investment',v:'₹2,000'},{l:'Historical USD CAGR',v:'12–18%'},{l:'Rupee depreciation bonus',v:'+2–4% annually'},{l:'10-year INR estimate',v:'~₹7–9 Lakhs'},{l:'Diversification value',v:'Protection if Indian markets slow'}]},
+ {e:'🔒',t:'Emergency Fund: 6 Months — The Non-Negotiable',cat:'Safety Foundation',imp:'Protects entire ₹3.97Cr plan from collapse',
+  prev:'Without this, one crisis forces you to sell SIP at the worst time.',
+  overview:'Your Emergency Fund (₹1.2L = 6 months × ₹20K monthly expenses) is the immune system of your 20-year wealth plan. Without it, a job loss, medical emergency, or major repair forces you to sell mutual funds at exactly the wrong moment — during a crisis when markets are lowest. This fund is untouchable for any non-emergency.',
+  when:'Priority #1 from Day 1. ₹5K/month to IDFC First savings. Target: ₹1.2L in 24 months.',
+  steps:[{t:'Open IDFC First Bank savings account',d:'7% interest — best savings rate in India. Free account, open online in 30 min.'},{t:'Transfer ₹5,000 on salary day — same day',d:'Before anything else. Emergency fund transfer happens before any spending.'},{t:'Define what counts as emergency',d:'Job loss, medical crisis, major appliance failure = YES. Vacation, electronics, festivals = NO.'},{t:'Refill immediately if used',d:'Pause all extra spending, redirect to refill Emergency Fund before anything else.'}],
+  tips:['Name the IDFC account "EMERGENCY ONLY" in your banking app — psychological barrier','Once ₹1.2L reached, month 25: redirect this ₹5K to SIP → SIP becomes ₹20K','At 7% interest, your ₹1.2L Emergency Fund earns ₹8,400/year — money that works while waiting'],
+  warning:'The Emergency Fund is not a savings account. Not for festival shopping. Not for "good deals". One purpose only.',
+  calc:[{l:'Monthly deposit',v:'₹5,000'},{l:'Target balance',v:'₹1,20,000'},{l:'Months to complete',v:'24 months'},{l:'Interest earned (IDFC 7%)',v:'~₹8,400'},{l:'Month 25: redirect to SIP',v:'+₹5K/mo → SIP = ₹20,000/mo'}]},
+ {e:'🛡️',t:'Term Insurance: Protect the 20-Year Plan',cat:'Protection',imp:'₹2Cr cover for ₹1,400/month — non-negotiable',
+  prev:'One tragedy without insurance destroys 20 years of wealth building.',
+  overview:'A pure term life insurance policy costs ~₹800/month for ₹1Cr cover for the husband and ~₹600/month for the wife. Total ₹1,400/month (2% of income). If anything happens to either earning member, the surviving family has ₹1 Crore to continue the wealth plan, pay expenses, and secure children\'s education.',
+  when:'This month — before any other investment. Premiums rise 5% for every year you delay.',
+  steps:[{t:'Compare on Policybazaar',d:'Filter: Pure term plan, ₹1Cr cover, 30-year term. Sort by claim settlement ratio (target: 98%+).'},{t:'Choose online plans for 30% lower premium',d:'HDFC Click 2 Protect, ICICI iProtect Smart, Max Life Smart Secure Plus are top performers.'},{t:'Disclose EVERYTHING honestly',d:'Health conditions, smoking status, family disease history. Non-disclosure = claim rejection.'},{t:'Set premium auto-debit, store policy safely',d:'Never miss premium. Physical policy document at home + digital copy in email.'}],
+  tips:['Buy before age 35 — locked in for life at that rate','Never buy endowment/ULIP — always separate insurance from investment','Add accidental disability rider for ₹100–200/month extra'],
+  warning:'Do NOT depend on employer group insurance — it stops the day you leave the job. Personal term insurance follows you everywhere.',
+  calc:[{l:'Husband term (₹1Cr, 30yr)',v:'~₹800/month'},{l:'Wife term (₹1Cr, 30yr)',v:'~₹600/month'},{l:'Total monthly cost',v:'₹1,400'},{l:'Combined coverage',v:'₹2 Crore'},{l:'As % of income',v:'2% of ₹70,000'}]},
+ {e:'🌍',t:'Strategic Property at Year 15',cat:'Real Estate',imp:'₹15–25K/month passive income stream',
+  prev:'When EMI ends, take a calculated rental property position.',
+  overview:'When your EMI ends at Year 15, your entire ₹20,000 monthly liability disappears. This is the moment to add a strategic rental property. With ₹15L saved as down payment (built over Years 12–14), take a small ₹20–25L loan (covered by rental income), and create a second income stream while property appreciates 8–10% annually.',
+  when:'Year 12: Start saving ₹5K/month as property fund. Year 14: Research. Year 15: Execute.',
+  steps:[{t:'Year 12: Create "Property Down Payment" sub-fund',d:'₹5K/month in liquid fund → ₹2.1L in 3.5 years as property down payment base.'},{t:'Research rental yield areas',d:'Near IT parks, metro expansion, hospitals, universities. 1BHK for maximum rental demand.'},{t:'Hire a property lawyer for title verification',d:'₹5,000 fee. Non-negotiable. Protects your ₹40L purchase from title fraud.'},{t:'Target 3–4% net rental yield',d:'₹40L property → ₹12–16K rent → 3.6–4.8% gross. Meaningful passive income.'}],
+  tips:['Property management company (8–10% of rent) = zero landlord headaches','1BHK in Tier-1 city outskirts beats luxury property in returns','Never sell the property — rental income compounds your wealth indefinitely'],
+  warning:'Never use your SIP corpus for property down payment. They serve completely different goals in your plan.',
+  calc:[{l:'Property (target Year 15)',v:'₹40 Lakhs'},{l:'Down payment',v:'₹15 Lakhs saved'},{l:'Home loan',v:'₹25L @ 8.5%, 15yr'},{l:'Monthly EMI',v:'~₹24,600'},{l:'Expected monthly rent',v:'₹15,000–22,000'},{l:'Net cash position',v:'Near break-even or positive'}]},
+ {e:'🪙',t:'Step-Up SIP 10% Every April — Most Powerful Habit',cat:'Wealth Acceleration',imp:'+₹2.1 Crore vs flat SIP',
+  prev:'This one annual 10-minute action doubles your final corpus.',
+  overview:'Every April 1, increasing every SIP by 10% changes your entire financial trajectory. Starting at ₹15,000/month with 10% annual step-up, your 20-year corpus reaches ₹3.97Cr vs ₹1.87Cr with flat SIP. The difference is ₹2.1 Crore — from one 10-minute action repeated 20 times. This is the most powerful habit in this entire plan.',
+  when:'Every April 1. Set a phone reminder right now for April 1 every year.',
+  steps:[{t:'Calculate next year\'s SIP target',d:'Current × 1.10. Write the full 20-year schedule now: ₹15K→₹16.5K→₹18.15K→₹19.96K...'},{t:'Log into Zerodha/Groww every April and modify',d:'COIN → Modify SIP → New amount. Takes 10 minutes. Do it before spending the increment.'},{t:'In raise years, step up 15–20%',d:'Salary grew 20%? SIP grows 15%. Never let lifestyle absorb the full raise.'},{t:'Apply step-up to gold SIP too',d:'Gold investment also increases 10% annually alongside equity SIP.'}],
+  tips:['ET Money app shows exactly what your step-up SIP will be worth in N years — motivating','Even 5% step-up beats flat SIP by ₹1+ Crore over 20 years','Set this app task to remind you every April — never skip it'],
+  warning:'Never step down your SIP. Not even in tough months. Cut expenses instead. A paused SIP is a derailed plan.',
+  calc:[{l:'SIP Year 1',v:'₹15,000/month'},{l:'SIP Year 5 (10% step-up)',v:'₹21,962/month'},{l:'SIP Year 10',v:'₹35,343/month'},{l:'SIP Year 20',v:'₹91,744/month'},{l:'Corpus at 20yr (step-up)',v:'₹3.97 Crore'},{l:'Corpus (flat ₹15K)',v:'₹1.87 Crore — difference: ₹2.1Cr'}]},
+ {e:'📉',t:'WARS & CRISES: Invest MORE, Not Less',cat:'Crisis Strategy',imp:'2–3x returns post every crisis',
+  prev:'Russia-Ukraine, COVID, 2008 — every crash recovered. Your strategy: deploy.',
+  overview:'Wars, pandemics, and financial crises cause 30–50% market crashes. EVERY single one in history recovered — and exceeded the previous high. Russia-Ukraine 2022: markets fell, then recovered. COVID March 2020: Sensex at 25,000. By 2021: 60,000 — a 140% gain in 18 months. Your strategy: keep a ₹50,000 "Opportunity Fund" ready. When markets fall 20%+, deploy it as lump sum and double your SIP temporarily. This is how ordinary families create extraordinary wealth.',
+  when:'Build the Opportunity Fund over 18 months (₹2,500/month in liquid fund). Then deploy when Sensex falls 20%+ from peak.',
+  steps:[{t:'Build ₹50,000 Opportunity Fund',d:'₹2,500/month in liquid fund (Parag Parikh or IDFC). Separate from Emergency Fund. Label "Crash Deploy".'},{t:'Set price alert on Zerodha',d:'When Sensex falls 20% from its recent high: your phone alerts you. That is the buy signal.'},{t:'Double your SIP for 3–6 months during crash',d:'₹15K SIP → ₹30K temporarily. You buy more units at lower prices — the magic of SIP during crashes.'},{t:'Deploy the full ₹50K Opportunity Fund as lump sum',d:'One transfer. ₹50K at market bottom. Historical data: 2–3x return within 24–36 months.'},{t:'Turn off financial news entirely during crash',d:'News amplifies fear. Fear is your enemy. The data says: every crash recovered.'}],
+  tips:['India-Pakistan tensions (1999, 2019, 2025): market dipped 5–15%, recovered within months','Russia-Ukraine 2022: Indian markets barely fell — India is increasingly insulated from Western crises','Make a WRITTEN rule today: "If Sensex falls 20% I will invest ₹X extra." Commit now before emotion takes over'],
+  warning:'This strategy requires pre-commitment in writing. In the moment of a crash, your brain will say STOP. Your written plan must override your brain.',
+  calc:[{l:'COVID crash (Mar 2020)',v:'Sensex: 25,000'},{l:'Recovery (Feb 2021)',v:'Sensex: 50,000 → 100% gain'},{l:'2008 crisis recovery',v:'200%+ gain by 2013'},{l:'Crash frequency',v:'Every 4–5 years (expect 4 in 20yr)'},{l:'Opportunity Fund 2x SIP for 3mo',v:'Extra ₹45K invested at crisis lows'},{l:'Historical return on crash investment',v:'2–3x in 24–36 months'}]},
+ {e:'🧾',t:'Zero-Tax Strategy: Max All Deductions',cat:'Tax Planning',imp:'₹53L extra corpus from tax savings invested',
+  prev:'₹45,000+/year tax saved. Invested at 13%, it becomes ₹53 Lakhs.',
+  overview:'India\'s tax code rewards disciplined investors massively. A ₹70K household using all deductions can reduce taxable income by ₹2.25 Lakhs/year. At 20% slab = ₹45,000 annual tax savings. If this ₹45K is invested every year at 13% for 20 years → ₹53 Lakhs of additional corpus. The tax system literally pays you to be a disciplined investor.',
+  when:'Plan by March 31 each year. Execute in April at start of new financial year.',
+  steps:[{t:'80C: Stack to ₹1.5L',d:'ELSS SIP (₹48K/year) + EPF employer contribution + PPF top-up + home loan principal.'},{t:'80D: Health insurance premium',d:'Family floater ₹15–25K/year qualifies for ₹25K deduction.'},{t:'80CCD(1B): NPS ₹50K extra',d:'Over and above 80C. Both spouses = ₹1L total deduction, ₹20K tax saved.'},{t:'File ITR by July 31, invest refund immediately',d:'ClearTax.in for free filing. Refund arrives August — goes straight to lump sum SIP.'}],
+  tips:['New vs Old tax regime: compare both on ClearTax every year — regime better for you changes as income grows','Both spouses file separately to double all deduction benefits','Keep all certificates in one folder: ELSS statement, NPS certificate, health insurance receipt'],
+  warning:'Do not blindly choose Old tax regime without calculation. At some income levels, New regime saves more money.',
+  calc:[{l:'80C deduction',v:'₹1,50,000'},{l:'80D (health insurance)',v:'₹25,000'},{l:'80CCD(1B) NPS both',v:'₹1,00,000'},{l:'Total annual deduction',v:'₹2,75,000'},{l:'Tax saved at 20% slab',v:'~₹55,000/year'},{l:'Invested for 20 years at 13%',v:'~₹65 Lakhs extra corpus'}]},
+ {e:'🏦',t:'Spread Banks — DICGC Protects ₹5L Per Bank',cat:'Banking Safety',imp:'Protects all your savings',
+  prev:'One bank failure (Yes Bank, PMC Bank) wiped out unprotected savings.',
+  overview:'DICGC (Deposit Insurance) guarantees ₹5 Lakhs per depositor per bank. Yes Bank collapsed in 2020. PMC Bank depositors lost crores above ₹5L. The simple protection: never keep more than ₹5L in any single bank as deposits. Spread across 3 banks with different goals. Mutual funds are separately held with custodians — safer than banks.',
+  when:'As soon as Emergency Fund approaches ₹3–4 Lakhs. Spread from Day 1.',
+  steps:[{t:'Map accounts to specific goals',d:'SBI/HDFC = daily expenses current account. IDFC First = Emergency Fund (7%). RD account = Travel Fund.'},{t:'Never keep more than ₹4L in any one bank',d:'Stay below ₹5L per bank at all times for deposits. Move excess to mutual fund liquid funds.'},{t:'Use FDs only for very short-term goals (under 1 year)',d:'FD returns (6–7%) are fully taxable. Debt mutual funds are more tax-efficient for 1–3 year goals.'},{t:'Check bank health annually',d:'Capital Adequacy Ratio and NPA levels are published quarterly. Scheduled commercial banks are far safer than cooperative banks.'}],
+  tips:['Post Office savings deposits: full government guarantee — even safer than bank DICGC','Mutual funds are NOT deposits — they are held separately with custodians like HDFC Securities — cannot fail with any bank','Never keep more than ₹50K in any digital wallet (PhonePe, Paytm)'],
+  warning:'Avoid cooperative banks for amounts above ₹1L. They have significantly higher failure risk than scheduled commercial banks.',
+  calc:[{l:'DICGC protection per bank',v:'₹5 Lakhs'},{l:'Across 3 banks',v:'₹15 Lakhs protected'},{l:'Mutual fund protection',v:'Separate custodian — not bank risk'},{l:'Recommended spread',v:'IDFC First + SBI + one more'}]},
+ {e:'🌾',t:'Beekeeping as Wealth Engine — Your Superpower',cat:'Business Income',imp:'₹25–80K/month additional income possible',
+  prev:'Your professional skill is worth 3–5x more in the premium market.',
+  overview:'Your beekeeping profession is a massively undermonetised wealth engine. India\'s organic honey market grows 25% annually. Premium organic honey sells at ₹800–1,500/kg vs commodity ₹150–200/kg. A well-run 50-colony operation with organic certification, B2B relationships, value-added products, and weekend workshops can generate ₹25,000–80,000/month — more than the household salary.',
+  when:'Month 6–12 after all financial habits are automated on standing instructions.',
+  steps:[{t:'Get APEDA Organic Certification',d:'₹15,000–25,000/year investment. Honey price jumps from ₹200 to ₹800+/kg immediately.'},{t:'Scale to 50+ colonies using PM Mudra Loan',d:'₹10L Mudra Yojana at subsidised rate. Each colony earns ₹4,000–8,000/year.'},{t:'Build B2B relationships',d:'Contact organic stores (Conscious Food, Nature\'s Basket), Ayurveda brands, cosmetics companies, restaurants.'},{t:'Add weekend workshops and beeswax products',d:'Workshops: ₹2,000–5,000/person. Beeswax candles/lip balm: 60–70% margin.'}],
+  tips:['National Bee Board (nbb.nic.in) provides free training and subsidised equipment — apply now','Instagram + YouTube documenting your hive builds brand and customers organically — zero cost','Business income goes 100% to extra SIP — business profits are bonus honey for the wealth hive'],
+  warning:'Never let business income instability affect your core SIP. SIP is based on salary only. Business profits are surplus.',
+  calc:[{l:'Revenue per colony/year',v:'₹4,000–8,000'},{l:'50 colonies annual',v:'₹2–4 Lakhs/year'},{l:'Weekend workshops (4/month)',v:'₹10,000–20,000/month'},{l:'Beeswax products',v:'₹5,000–15,000/month'},{l:'Total monthly possible',v:'₹25,000–80,000'},{l:'Invested for 15yr at 13%',v:'₹3–12 Crore additional'}]},
+ {e:'💊',t:'Health Insurance: Non-Negotiable Protection',cat:'Protection',imp:'Protects entire plan from medical wipeout',
+  prev:'One serious hospitalisation can cost ₹5–15L. One policy prevents disaster.',
+  overview:'Medical inflation in India is 14% annually — the highest in the world. A serious illness (cancer, cardiac surgery, organ transplant) requiring 10+ days in a private hospital can cost ₹5–15 Lakhs. Without health insurance, this forces you to redeem your entire SIP corpus at the worst possible moment. A ₹10–20L family floater costs ₹20,000–35,000/year.',
+  when:'This month. Premiums rise significantly with age and any pre-existing conditions.',
+  steps:[{t:'Compare on Policybazaar',d:'Filter: family floater, ₹10L minimum, cashless hospitals near Haridwar.'},{t:'Choose Star Health, Niva Bupa, or Care Health',d:'Best claim settlement ratios and widest hospital networks in Uttarakhand.'},{t:'Avoid room rent capping clauses',d:'Policies with "max ₹3,000/day room rent" limit ALL claim amounts proportionally — avoid.'},{t:'Add Super Top-Up for ₹50L coverage cheaply',d:'Super Top-Up kicks in after a deductible (₹5L base). ₹50L extra cover for ₹6,000–8,000/year.'}],
+  tips:['No-claim bonus: cover amount increases every claim-free year at no extra cost','Pre-existing diseases have 2–4 year waiting period — disclose honestly from day 1','Critical illness policy separately for cancer, cardiac arrest, kidney failure — lump sum payout'],
+  warning:'Corporate health insurance provided by employer stops the day you leave the job. Personal health insurance follows you forever — buy it independently.',
+  calc:[{l:'Family floater ₹10L cover',v:'~₹20,000–30,000/year'},{l:'Super Top-Up ₹50L cover',v:'~₹6,000–8,000/year'},{l:'Total annual premium',v:'~₹28,000–38,000'},{l:'Average hospitalisation (serious)',v:'₹5–15 Lakhs'},{l:'Total coverage',v:'₹60 Lakhs'}]},
+ {e:'📱',t:'Track Everything with ET Money App',cat:'Monitoring',imp:'Spot 1–2% drag = ₹20–40L saved',
+  prev:'You cannot improve what you do not measure. 15 min/month.',
+  overview:'ET Money app consolidates all your investments: mutual funds, stocks, NPS, EPF, gold. It calculates XIRR (your true investment return accounting for timing of all transactions). Spending 15 minutes monthly reviewing your portfolio dashboard prevents years of silent underperformance — a 1% annual drag compounds to ₹20–40L loss over 20 years.',
+  when:'Set up today. Monthly review on 1st of every month — 15 minutes only.',
+  steps:[{t:'Download ET Money, import mutual funds',d:'Import by fetching CAMS statement — email CAMS at mfs@camsonline.com requesting consolidated statement.'},{t:'Check XIRR monthly',d:'Target: 12%+ for equity SIPs. XIRR below 10% means a fund needs review.'},{t:'Compare against benchmark',d:'Your large cap fund should beat Nifty 50 index. Mid cap should beat Nifty Midcap 150.'},{t:'Annual portfolio review in April',d:'Remove funds with 3-year XIRR consistently below benchmark. Replace with better performer.'}],
+  tips:['Zerodha COIN shows direct plan NAV and returns in one dashboard','Value Research Online (valueresearchonline.com) for detailed fund analysis before switching','Do not switch funds more than once in 2 years — exit loads and tax events destroy returns'],
+  warning:'Do not react to 1-year underperformance. A fund needs 3+ years of consistent underperformance before warranting a switch.',
+  calc:[{l:'Time investment',v:'15 min/month'},{l:'Fund review frequency',v:'Annual'},{l:'Switch trigger',v:'3yr XIRR below benchmark'},{l:'Cost of 1% annual drag',v:'₹20–40L over 20 years'},{l:'Benefit of monitoring',v:'Eliminates this drag'}]},
+ {e:'💳',t:'Zero Credit Card Debt — The Absolute Rule',cat:'Debt Management',imp:'36–48% interest destroys SIP returns',
+  prev:'Credit card at 40% interest cancels your entire SIP return.',
+  overview:'Credit card interest rates in India are 36–48% annually — the most expensive debt in existence. While your SIP earns 13%, credit card debt costs 40%. Carrying ₹50,000 in credit card debt for 12 months costs ₹20,000 in interest — that is 16 months of gold investment gone. The rule is absolute: pay full outstanding balance every month via auto-debit.',
+  when:'Starting today. Set up auto-pay for full outstanding amount this week.',
+  steps:[{t:'Set auto-pay for FULL balance — not minimum',d:'Every bank offers auto-debit for full outstanding. Do this for every card you own.'},{t:'Use credit card only for budget expenses',d:'Card = spending account, never credit account. Groceries, petrol, utilities — things already budgeted.'},{t:'If existing card debt: pay it before investing more',d:'Paying off 40% debt gives guaranteed 40% return — beats any SIP. Prioritise ruthlessly.'},{t:'Maximum 2 credit cards',d:'One main card with best rewards. One backup. Both with full auto-pay.'}],
+  tips:['CRED app tracks all cards in one place and rewards on-time payments','If card spending feels uncontrollable, cut the card — use debit only until discipline is built','Rewards points from credit cards are free money IF you pay full balance every month'],
+  warning:'Minimum payment trap: ₹1L balance at 3.5%/month minimum → you pay ₹2.5L total over 10 years. Never pay minimum.',
+  calc:[{l:'Credit card interest rate',v:'36–48%/year'},{l:'Your SIP return',v:'13%/year'},{l:'Net loss carrying ₹50K debt',v:'₹18,000–24,000/year'},{l:'Guaranteed return: pay debt first',v:'36–48% — beats every investment'},{l:'20-year zero-debt discipline',v:'₹5–20 Lakhs saved vs debt-carrying family'}]},
+ {e:'🌍',t:'Inflation-Proof Portfolio: Gold + Equity',cat:'Inflation Strategy',imp:'Real returns 6–8% above inflation',
+  prev:'Inflation at 6% silently cuts savings. Only equity + gold beat it.',
+  overview:'India\'s long-term inflation averages 5–7% annually. Your savings account earns 3.5% — a guaranteed real loss of 2–3% every year. Only two asset classes consistently beat inflation over 10+ years: equity (13% return → 6–8% real return above inflation) and gold (8% return → 1–3% real return). Your portfolio is already perfectly positioned to beat inflation.',
+  when:'Ongoing strategy — already embedded. Review inflation-adjusted returns every April.',
+  steps:[{t:'Calculate real return every April',d:'Real return = Nominal return − Inflation. If SIP earns 13% and inflation is 6%, real return is 7%.'},{t:'Never let cash sit idle above Emergency Fund',d:'Any amount above ₹1.2L Emergency Fund in savings account is losing to inflation. Deploy immediately.'},{t:'Maintain 85% equity, 15% gold ratio',d:'If equity grows to 92%, rebalance: sell a small portion into gold ETF or SGB.'},{t:'Add inflation-indexed bonds if RBI issues',d:'RBI occasionally issues Inflation-Indexed Bonds — excellent product when available. Watch RBI announcements.'}],
+  tips:['Equity beats inflation by 6–8% annually over 10+ years in India — historically proven','Post Office MIS or SCSS for elderly parents who need safe, inflation-aware income','Government bonds via RBI Retail Direct for portfolio stability when equity is highly volatile'],
+  warning:'Do NOT hold more than Emergency Fund amount in savings accounts. You are guaranteed to lose purchasing power every day you hold idle cash.',
+  calc:[{l:'India average inflation',v:'5–7%/year'},{l:'SIP expected return',v:'13%/year'},{l:'Real return above inflation',v:'6–8%/year'},{l:'₹3.97Cr at today\'s purchasing power',v:'~₹1.4Cr equivalent'},{l:'Still represents',v:'Complete financial freedom in today\'s terms'}]},
+ {e:'📚',t:'Read 1 Finance Book Per Year: ₹500 → Crores',cat:'Financial Education',imp:'Decisions worth ₹50L–2Cr over 20 years',
+  prev:'Your most profitable investment is 3–4 hours per year reading.',
+  overview:'People who read personal finance books make consistently better decisions worth lakhs over a lifetime. You do not need 100 books — one quality book per year, applied with discipline, is transformational. The knowledge compounds just like money: each year\'s book builds on the previous year\'s understanding.',
+  when:'Start this month. One book per financial year. Sunday mornings, 30-minute sessions.',
+  steps:[{t:'Year 1: Rich Dad Poor Dad — Kiyosaki',d:'Mindset: assets vs liabilities. Changed millions of lives globally. Easy read, powerful framework.'},{t:'Year 2: Psychology of Money — Morgan Housel',d:'Why intelligent people make stupid financial decisions. Best modern finance book. Free audiobook on YouTube.'},{t:'Year 3: Let\'s Talk Money — Monika Halan',d:'Written specifically for India. Mutual funds, insurance, budgeting. Practical and actionable.'},{t:'Year 4: Coffee Can Investing — Saurabh Mukherjea',d:'Buy and hold quality Indian businesses. Evidence-based approach for long-term Indian investors.'}],
+  tips:['Zerodha Varsity (varsity.zerodha.com): free, comprehensive, India-specific — best free resource','ET Money, SEBI investor education portal: both excellent and free','Teach your spouse and children — financial literacy multiplies across your entire family'],
+  warning:'Books give direction, not permission to change your entire plan. Apply one idea at a time. Do not switch plans based on every new book.',
+  calc:[{l:'Time per year',v:'3–4 hours (one book)'},{l:'Cost per book',v:'₹200–500'},{l:'Value of improved decisions',v:'₹50L–2Cr over 20 years'},{l:'ROI on ₹500 book',v:'Potentially 10,000x'},{l:'Best free resource',v:'Zerodha Varsity — start today'}]},
+];
+
+// ══════════════════════════════════════════════════════
+// 20 IDEAS
+// ══════════════════════════════════════════════════════
+const IDEAS=[
+ {e:'🐝',t:'Step-Up SIP 10% Every April',imp:'+₹2.1Cr additional corpus',prev:'One annual habit creates more wealth than 10 years of extra saving.',
+  overview:'Just like bees expand the hive each season, your SIP grows 10% every April. Starting at ₹15K with 10% annual step-up, Year 20 corpus is ₹3.97Cr vs ₹1.87Cr flat. That ₹2.1 Crore difference comes from one 10-minute action, repeated 20 times.',
+  when:'Year 2 onwards. Every April 1. Set a phone reminder right now.',
+  steps:[{t:'Write the 20-year SIP schedule',d:'₹15K→₹16.5K→₹18.15K→₹19.97K... write it on paper and pin it up.'},{t:'Modify SIP in Zerodha each April',d:'COIN → Modify SIP → New amount. 10 minutes per year. Do it before spending the raise.'},{t:'Bigger step-up in raise years',d:'Salary grew 20%? Step up SIP 15%. Never let lifestyle absorb the full increment.'},{t:'Apply to gold SIP also',d:'Gold allocation increases 10% alongside equity.'},{t:'Track projections on ET Money',d:'The projected corpus chart is the most motivating visual in personal finance.'}],
+  tips:['Even 5% step-up beats flat SIP by ₹1+ Crore','Phone alarm: "April 1 — Increase SIP today"','Step up has the same effect as doubling your investment period'],
+  warning:'Never step down. Cut any other expense instead of SIP.',
+  calc:[{l:'SIP Year 1',v:'₹15,000'},{l:'SIP Year 10',v:'₹35,343'},{l:'SIP Year 20',v:'₹91,744'},{l:'Corpus (step-up)',v:'₹3.97 Crore'},{l:'Corpus (flat)',v:'₹1.87 Crore'},{l:'Difference',v:'₹2.1 Crore'}]},
+ {e:'🍯',t:'Redirect EMI at Year 15 — The Critical Moment',imp:'Difference between ₹60L and ₹3.97Cr',prev:'The day EMI ends is the most important financial decision of your life.',
+  overview:'When EMI ends at Year 15, ₹20,000/month is suddenly free. If immediately redirected to SIP, your total corpus reaches ₹3.97Cr. If absorbed by lifestyle, it reaches only ₹60L. This single decision is worth ₹3.37 Crore. Make this commitment in writing today, before the moment arrives.',
+  when:'Plan today. Execute the exact month EMI ends. Set a reminder for month 180.',
+  steps:[{t:'Make a written family commitment today',d:'Both sign: "When EMI ends, ₹20,000 goes to SIP the next month." Keep signed paper in this app.'},{t:'Set Zerodha reminder for Month 179',d:'One month before EMI ends, login and set SIP increase effective next month.'},{t:'Do NOT buy a car or upgrade lifestyle',d:'You will feel suddenly rich. That feeling costs ₹3 Crore. Have the dinner, then invest.'},{t:'Consider splitting the ₹20K',d:'₹15K to SIP increase. ₹5K to travel/lifestyle. Still dramatically better than full lifestyle absorption.'},{t:'Tell your children what this means',d:'Show them the number. ₹3.37 Crore buys their college education and their first home.'}],
+  tips:['Automation: set the SIP increase BEFORE the EMI ends, effective next month','This is where 90% of families fail — plan now to be in the 10%','The EMI ending is a milestone worth celebrating — but the celebration budget is the dinner only'],
+  warning:'This is the single most dangerous financial moment in your 20-year plan. Most families fail here.',
+  calc:[{l:'EMI freed at Year 15',v:'₹20,000/month'},{l:'Invested at 13% for 5yr',v:'₹1.87 Crore additional'},{l:'Corpus WITH redirect',v:'₹3.97 Crore'},{l:'Corpus WITHOUT redirect',v:'~₹60 Lakhs'},{l:'Cost of this one decision',v:'₹3.37 Crore'}]},
+ {e:'👩',t:"Wife's Income: The Wealth Engine",imp:'₹10K/mo extra = ₹1.5Cr in 15yr',prev:'₹50K/month is 71% of household income. It is the foundation.',
+  overview:'Your wife earns ₹50,000/month — she is the queen bee of the financial hive. Any additional income she creates — consulting, tutoring, online work — invested entirely at 13% compounds to extraordinary wealth. The key: every rupee beyond ₹50K goes 100% to investment.',
+  when:'Month 6 onwards, after all financial habits run on auto-pilot standing instructions.',
+  steps:[{t:'List every monetisable skill',d:'Every skill used at work has a freelance, consulting, or teaching version.'},{t:'Start with 4 hours per weekend only',d:'One client, one student, one project. Target ₹5K extra in Year 1. Protect primary income.'},{t:'Open dedicated "Extra Income SIP"',d:'All extra income → separate SIP fund. Named "Extra Income — Touch Never".'},{t:'Scale to ₹15K extra by Year 3',d:'One satisfied client refers two more. Compound referrals like you compound money.'},{t:'Never burn out the primary income',d:'The ₹50K salary is the sacred foundation. Side income is bonus honey only.'}],
+  tips:['Vedantu, Unacademy, Chegg for online tutoring — highly flexible hours','LinkedIn profile takes 1 hour to set up — consulting opportunities follow','₹10K/month extra for 15 years at 13% = ₹1.47 Crore additional corpus'],
+  warning:'Do not sacrifice health or primary job performance for side income. Consistency over time beats intensity.',
+  calc:[{l:'Extra income Year 1',v:'₹5,000/month'},{l:'Extra income Year 3',v:'₹15,000/month'},{l:'₹10K/mo for 15yr at 13%',v:'₹1.47 Crore'},{l:'₹20K/mo for 15yr at 13%',v:'₹2.94 Crore'}]},
+ {e:'🌻',t:'Emergency Fund Complete → Redirect ₹5K to SIP',imp:'Month 25: SIP jumps from ₹15K to ₹20K',prev:'The moment your safety net is complete, accelerate wealth.',
+  overview:'Your Emergency Fund of ₹1.2L fills in 24 months. Month 25 onwards, the ₹5,000 that was building safety has no more job. Redirect it to SIP immediately — no decision needed, just change the standing instruction. Your SIP grows from ₹15K to ₹20K with zero extra effort or income.',
+  when:'Month 25. Set phone reminder for 2 years from today.',
+  steps:[{t:'Track Emergency Fund balance each month in Ledger',d:'Note the running total. The moment it hits ₹1,20,000: the switch is ready.'},{t:'Month 24: Modify SIP standing instruction',d:'Login to Zerodha. Change SIP from ₹15K to ₹20K effective Month 25.'},{t:'Stop Emergency Fund deposit from Month 25',d:'Standing instruction to IDFC: cancel ₹5K regular transfer.'},{t:'Refill rule: if Emergency Fund ever used',d:'Pause the SIP increase temporarily. Refill fund to ₹1.2L. Then resume.'}],
+  tips:['Keep Emergency Fund in IDFC First at 7% — your money earns ₹700/month while waiting','After ₹1.2L, consider building to ₹2L as income grows for extra peace of mind','The extra ₹5K/mo in SIP for 18 years at 13% = ~₹78 Lakhs additional corpus'],
+  warning:'Do not use Emergency Fund for predictable expenses. Budget separately for insurance premiums, festival spending, car service.',
+  calc:[{l:'Monthly Emergency deposit',v:'₹5,000'},{l:'Months to ₹1.2L target',v:'24 months'},{l:'Month 25: SIP becomes',v:'₹20,000/month'},{l:'Extra ₹5K at 13% for 18yr',v:'~₹78 Lakhs additional'}]},
+ {e:'🧾',t:'Maximise Tax Deductions — Every Rupee Matters',imp:'₹53L+ from tax savings invested',prev:'The government rewards disciplined investors. Claim every rupee.',
+  overview:'Between 80C, 80D, and 80CCD(1B), you can deduct ₹2.75L from taxable income annually. At 20% tax slab = ₹55,000 saved. Invested at 13% for 20 years = ₹65 Lakhs. Your disciplined investing literally creates an extra ₹65L of wealth through tax savings alone.',
+  when:'Plan every March. Execute in April. File ITR by July 31.',
+  steps:[{t:'Stack 80C to ₹1.5L',d:'ELSS SIP ₹48K + EPF employer contributions + PPF contribution + home loan principal.'},{t:'80D: Family health insurance',d:'₹20K–25K annual premium = ₹25K deduction.'},{t:'80CCD(1B): NPS ₹25K each spouse',d:'₹50K each × 2 = ₹1L extra deduction. ₹20K tax saved annually.'},{t:'File ITR and invest refund immediately',d:'₹55K refund → lump sum SIP in April. Not for spending.'}],
+  tips:['ClearTax.in for free ITR filing — takes 20 minutes','Compare Old vs New regime on ClearTax every year','Keep all certificates in one folder: ELSS statement, NPS certificate, health insurance receipt'],
+  warning:'New regime may save more at some income levels. Calculate both before choosing.',
+  calc:[{l:'80C',v:'₹1,50,000'},{l:'80D',v:'₹25,000'},{l:'80CCD(1B) both spouses',v:'₹1,00,000'},{l:'Total deduction',v:'₹2,75,000'},{l:'Tax saved at 20%',v:'~₹55,000/year'},{l:'Invested 20yr at 13%',v:'~₹65 Lakhs'}]},
+ {e:'💼',t:"Husband's Income: Double It in 3 Years",imp:'₹20K→₹40K = ₹1.4Cr extra',prev:'₹20K/month is the plan\'s constraint. Remove it systematically.',
+  overview:'At ₹20,000/month, the household income is constrained. A targeted skill upgrade, certification, or career switch over 2–3 years can bring this to ₹35,000–50,000/month. As a beekeeper with organic certification and B2B relationships, the business route to income doubling is particularly powerful.',
+  when:'Month 1: Research. Month 3: Enroll in training. Month 18: First income increase.',
+  steps:[{t:'Get organic honey certification (APEDA)',d:'₹15K–25K investment → honey price jumps to ₹800–1,500/kg → instant income jump.'},{t:'Identify the specific income gap',d:'Is it skills? Network? Role? Job switch typically gives 20–40% salary increase vs staying.'},{t:'One targeted course or certification',d:'₹10K course that adds ₹20K/month = 15-day ROI. Identify what that course is.'},{t:'Target milestones: ₹25K by Month 12, ₹35K by Month 24',d:'Write these on a card. Review monthly.'}],
+  tips:['National Bee Board subsidies + PM Mudra Loan for scaling beekeeping business','LinkedIn updated profile: consulting opportunities find you','B2B honey supply to health brands: ₹800+/kg in bulk volumes'],
+  warning:'Never quit primary income before alternative is stable for 3+ months.',
+  calc:[{l:'Current income',v:'₹20,000/month'},{l:'Target Year 3',v:'₹40,000/month'},{l:'Extra ₹20K×17yr at 13%',v:'₹1.42 Crore extra'},{l:'Beekeeping B2B (50 colonies)',v:'₹2–4 Lakhs/year additional'}]},
+ {e:'🛡️',t:'Term Insurance — Protect the 20-Year Journey',imp:'₹2Cr cover, 2% of income',prev:'One tragedy without insurance destroys everything built.',
+  overview:'A ₹1 Crore term policy each for husband and wife costs ₹1,400/month total. If anything happens to either earner, the family has ₹1 Crore to continue the wealth plan, fund children\'s education, and maintain the home. Without this, one event undoes 20 years of work.',
+  when:'This month, before any other investment.',
+  steps:[{t:'Compare on Policybazaar',d:'Filter: Pure term, ₹1Cr, 30-year term, claim settlement ratio 98%+.'},{t:'Buy online: 30% cheaper than agent',d:'HDFC Click 2 Protect, ICICI iProtect Smart, Max Life Smart Secure Plus.'},{t:'Disclose all health conditions',d:'Smoking, family history, existing conditions — everything. Non-disclosure = rejection.'},{t:'Set premium auto-debit forever',d:'Never manually remember to pay. One lapsed premium can void the policy.'}],
+  tips:['Buy before age 35 for locked-in low rates','Accidental disability rider: ₹100–200/month — worth it','Store policy documents where family can find them — tell your spouse today'],
+  warning:'Do NOT count on employer group insurance. It stops the day you change jobs.',
+  calc:[{l:'Husband premium (₹1Cr)',v:'~₹800/month'},{l:'Wife premium (₹1Cr)',v:'~₹600/month'},{l:'Total',v:'₹1,400/month'},{l:'Combined cover',v:'₹2 Crore'},{l:'As % of ₹70K income',v:'2%'}]},
+ {e:'🏠',t:'Second Property at Year 15',imp:'₹15–25K/month passive income',prev:'When EMI ends, add a rental asset — debt covered by rent.',
+  overview:'At Year 15, EMI ends and financial breathing room emerges. A strategic 1BHK in a high-demand rental area — near IT parks, metro expansion, or universities — with rental income that covers most of the new EMI creates a powerful income stream while property appreciates.',
+  when:'Year 12: Save ₹5K/month property fund. Year 14: Research. Year 15: Buy.',
+  steps:[{t:'Year 12: Create property sub-fund',d:'₹5K/month liquid fund = ₹2.1L in 3.5 years as down payment contribution.'},{t:'Research: IT parks, metro lines, hospitals',d:'Rental demand highest near employment hubs. Study appreciation trends 2015–2025 in target area.'},{t:'Legal due diligence — never skip',d:'₹5,000 lawyer fee for title search protects ₹40L. Check encumbrance certificate.'},{t:'Target 3–4% net rental yield',d:'₹40L property → ₹12–16K/month rent = 3.6–4.8% gross yield.'}],
+  tips:['Property management company (8–10% rent) = landlord-free passive income','1BHK in outskirts beats luxury property on yield','Keep this property 20+ years — never sell for lifestyle'],
+  warning:'Never use SIP corpus for property down payment. They serve different wealth goals.',
+  calc:[{l:'Property target',v:'₹40 Lakhs'},{l:'Down payment',v:'₹15 Lakhs'},{l:'Loan',v:'₹25L @ 8.5%, 15yr'},{l:'Monthly EMI',v:'~₹24,600'},{l:'Monthly rent',v:'₹15,000–22,000'},{l:'Net position',v:'Near break-even to positive'}]},
+ {e:'🎓',t:"Child's Education Fund — Start from Day 1",imp:'₹26.7L ready at graduation',prev:'Education inflation 12%/year. ₹5L degree costs ₹35L in 18 years.',
+  overview:'A professional degree costing ₹5L today will cost ₹35L in 18 years at 12% education inflation. The only solution: separate education SIP starting today. ₹2,000/month for 18 years at 14% CAGR = ₹26.7 Lakhs. This fund is untouchable for any other purpose.',
+  when:'Start today. Every month earlier means thousands more at graduation.',
+  steps:[{t:'Open separate SIP named "Child Education"',d:'Zerodha COIN. Midcap or flexi cap fund. Completely separate account from main SIPs.'},{t:'Start at ₹2,000/month, step up annually',d:'Step up 10% every year alongside main SIPs.'},{t:'De-risk at age 14',d:'Switch from midcap to large cap. At age 16, move 50% to liquid fund.'},{t:'For daughters: add Sukanya Samriddhi',d:'8.2% guaranteed return, 100% tax-free, up to ₹1.5L/year deductible under 80C.'}],
+  tips:['Sukanya Samriddhi: best scheme in India for girl child — 8.2% guaranteed tax-free','Education loans available as backup but aim for zero debt for your child','Never mix with other goals — this fund has one purpose only'],
+  warning:'Do not redeem child fund for any other purpose. Education inflation is severe and real.',
+  calc:[{l:'Monthly SIP',v:'₹2,000'},{l:'Duration',v:'18 years'},{l:'CAGR',v:'14%'},{l:'Invested total',v:'₹4,32,000'},{l:'Corpus at graduation',v:'₹26.7 Lakhs'},{l:'vs cost of degree today',v:'₹5–15 Lakhs'}]},
+ {e:'💡',t:'Beekeeping Business — Scale to ₹80K/Month',imp:'₹3–12Cr extra over 15 years invested',prev:'Your hive is a wealth factory — every colony is a SIP.',
+  overview:'Your professional beekeeping is dramatically undermonetised in the premium market. Organic certification, 50+ colonies, B2B relationships, weekend workshops, and branded products creates a ₹30,000–80,000/month business income stream. Invested at 13% for 15 years, even ₹30K/month extra = ₹3 Crore additional corpus.',
+  when:'Month 6–12. After all financial habits run automatically.',
+  steps:[{t:'APEDA organic certification',d:'₹15K–25K investment. Price jumps from ₹200 to ₹800+/kg on certification.'},{t:'Scale to 50 colonies with Mudra Loan',d:'₹10L at subsidised rate. Each colony: ₹500–1K investment, ₹4K–8K revenue/year.'},{t:'B2B: approach organic stores, cosmetics brands',d:'Conscious Food, Nature\'s Basket, Kama Ayurveda, Biotique — all buy quality honey in bulk.'},{t:'Weekend workshops: ₹2,500–5,000/person',d:'Eco-resorts near Haridwar love partnering. Rishikesh tourism market is enormous.'},{t:'Branded honey + beeswax on Amazon',d:'FSSAI license + good packaging + your story. ₹500–900/500g jar vs ₹100/kg commodity.'}],
+  tips:['Instagram + YouTube: document your hive authentically — urban audiences love it','National Bee Board: nbb.nic.in for subsidised equipment and free training','All business revenue → 100% to extra SIP. Business accelerates the plan.'],
+  warning:'Never let business cashflow instability affect core SIP. Business profits are bonus honey.',
+  calc:[{l:'50 colonies revenue',v:'₹2–4 Lakhs/year'},{l:'Workshops (4/month)',v:'₹10,000–20,000'},{l:'Products + honey',v:'₹10,000–30,000'},{l:'Total monthly',v:'₹30,000–80,000'},{l:'₹30K/mo × 15yr at 13%',v:'₹3 Crore extra'},{l:'₹80K/mo × 15yr at 13%',v:'₹8 Crore extra'}]},
+ {e:'🌾',t:'Agri-Tourism: Urban Indians Will Pay to Visit',imp:'₹20–50K/month premium income',prev:'A weekend bee farm experience sells at ₹2,500–5,000/person.',
+  overview:'Agri-tourism is India\'s fastest-growing rural tourism segment. A 3-hour bee farm experience — observe hives, learn beekeeping, taste fresh honey, take home artisanal products — sells at ₹2,500–5,000/person. 10 visitors per weekend = ₹25,000–50,000/month with almost zero additional cost.',
+  when:'Year 1–2. Requires basic infrastructure: visitor safety gear, presentation skills, simple website.',
+  steps:[{t:'List on Airbnb Experiences',d:'Free listing. Urban visitors actively search for rural experiences near metro cities.'},{t:'Create 3-hour "Hive Experience" package',d:'Safety briefing → observe hives in gear → extraction demo → honey tasting → product purchase.'},{t:'Price: ₹2,500–4,000 per person',d:'Include take-home 250g jar. They become repeat buyers and refer friends.'},{t:'Partner with Haridwar/Rishikesh eco-resorts',d:'Revenue share model. Resorts bring visitors, you provide the experience.'}],
+  tips:['School groups + corporate team building = high-volume opportunities','Government agri-tourism subsidies available — check with Uttarakhand tourism department','Haridwar + honey + wellness narrative is compelling for urban health-conscious visitors'],
+  warning:'Bee safety is non-negotiable for visitors. Full gear + briefing mandatory. One sting incident damages reputation.',
+  calc:[{l:'Visitors per weekend',v:'8–12 people'},{l:'Price per person',v:'₹2,500–4,000'},{l:'Monthly revenue',v:'₹20,000–48,000'},{l:'Costs',v:'₹2,000–5,000'},{l:'Net monthly profit',v:'₹15,000–43,000'}]},
+ {e:'📦',t:'Honey Brand: Your Name on Every Jar',imp:'Brand value compounds forever',prev:'₹200/kg commodity becomes ₹800–1,500/kg with your story.',
+  overview:'Creating a simple premium honey brand — attractive packaging, clean label, authentic origin story — takes ₹20,000 to launch. "Hive of Haridwar" or "Ganga Honey" resonates with urban wellness consumers paying for authenticity. Amazon, Instagram, and corporate gifting open enormous distribution channels.',
+  when:'Year 1. Start with 50 jars/month. Scale with demand.',
+  steps:[{t:'Design brand identity',d:'Name + logo + label. ₹5,000 on Fiverr for professional design. Glass jars from Amazon bulk.'},{t:'Get FSSAI food business license',d:'Mandatory for packaged food. ₹2,000 online application. Simple process.'},{t:'List on Amazon Seller and Instagram',d:'Amazon Seller account: free. Instagram for direct premium buyers who pay your full price.'},{t:'Target corporate gifting',d:'Festival season gifting: Diwali, Holi. ₹800–1,500 honey gift sets to corporate offices.'}],
+  tips:['Haridwar origin + Ganga region + organic: premium narrative built in','Subscription model: monthly honey box = predictable recurring revenue','Beeswax products alongside honey: candles, lip balm, face cream — 70% margins'],
+  warning:'Honey quality is the entire brand. One bad batch destroys years of reputation. Quality first, scale second.',
+  calc:[{l:'Cost price per kg',v:'₹80–120 (own production)'},{l:'Branded selling price',v:'₹600–1,200/kg'},{l:'Margin per kg',v:'₹480–1,080'},{l:'50 colonies production',v:'200–400 kg/season'},{l:'Revenue potential',v:'₹1.2–4.8 Lakhs/season'}]},
+ {e:'🔄',t:'Rebalance Portfolio Every April and October',imp:'+0.5–1% annual return maintained',prev:'Markets drift. Your allocation drifts. Correct it twice a year.',
+  overview:'As markets move, your portfolio drifts from its target allocation. If equity grows from 85% to 93% of portfolio, you are taking more risk than planned. Rebalancing brings it back — and automatically forces you to buy what is low and sell what is high. This is the most disciplined wealth management habit.',
+  when:'Every April and October. Calendar reminders set now.',
+  steps:[{t:'April check: note current allocation',d:'ET Money dashboard shows equity vs gold vs debt split. Note exact percentages.'},{t:'If equity > 90%: move 5% to gold or debt',d:'Sell small portion of best-performing equity fund. Buy SGB or liquid fund with proceeds.'},{t:'If equity < 75%: add equity',d:'Lump sum into underperforming equity fund — buying low, mechanically.'},{t:'Record every rebalance decision',d:'Write what you changed and why. Pattern recognition helps future decisions.'}],
+  tips:['Rebalance by calendar, never by emotion or market news','Use NPS, PPF for internal rebalancing — avoids capital gains tax','One rebalance per year is usually sufficient — do not over-trade'],
+  warning:'Do not rebalance into cash during a crash. Rebalance only to your target allocation (equity/gold), never to "safety".',
+  calc:[{l:'Target allocation',v:'85% equity, 15% gold/debt'},{l:'Rebalance frequency',v:'Every April + October'},{l:'Benefit',v:'0.5–1% annual return improvement'},{l:'Over 20 years at +0.5%',v:'~₹25 Lakhs additional corpus'}]},
+ {e:'💰',t:'Systematic Withdrawal Plan at Year 20',imp:'₹2.3L/month forever from ₹3.97Cr',prev:'How to use ₹3.97Cr without ever running out.',
+  overview:'At Year 20, your corpus is ~₹3.97 Crore. The catastrophic mistake: withdraw everything and park in FD. The correct move: Systematic Withdrawal Plan drawing 7% annually. At 7% withdrawal on ₹3.97Cr = ₹27.8L/year = ₹2.32L/month — for life — while corpus stays invested and continues growing at 10%.',
+  when:'Plan this at Year 18. Execute at Year 20. Start planning now mentally.',
+  steps:[{t:'Calculate your Year 20 expense need',d:'₹30,000 today × (1.06)^20 = ₹96,000/month in Year 20 at 6% inflation.'},{t:'Set up SWP at 7% withdrawal rate',d:'₹3.97Cr × 7% = ₹27.8L/year. Your corpus grows if fund return > withdrawal rate.'},{t:'Shift to balanced advantage fund before SWP',d:'Move from pure equity to balanced advantage (equity + debt). Lower volatility for withdrawal phase.'},{t:'Annual SWP review: increase 5% for inflation',d:'Start at ₹2.32L/month. Increase 5% annually. Corpus can sustain this.'}],
+  tips:['SWP is highly tax-efficient — only gain portion taxed as LTCG at 10%','Keep 2 years of expenses in liquid fund as buffer — never start SWP from zero cash','At 7% withdrawal rate: corpus preserved or slowly growing — you never run out'],
+  warning:'Do NOT lump-sum withdraw your entire corpus. FD at 7% kills your purchasing power via inflation. SWP preserves wealth.',
+  calc:[{l:'Target corpus at Year 20',v:'₹3.97 Crore'},{l:'Safe withdrawal rate',v:'7% annually'},{l:'Annual withdrawal',v:'₹27.8 Lakhs'},{l:'Monthly income',v:'₹2.32 Lakhs'},{l:'Corpus after Year 20',v:'Preserved or growing slowly'}]},
+ {e:'🌱',t:'Invest During War and Crisis: Courage = Crores',imp:'2–3x returns post every crisis',prev:'Fear is the opportunity. Every crash in history recovered.',
+  overview:'Wars (Russia-Ukraine, Israel-Hamas, India-Pakistan tensions), pandemics, and financial crises cause 30–50% market crashes. Every single one in history recovered and exceeded the previous high. The investors who act with courage during fear — doubling SIP, deploying lump sums — create extraordinary wealth. Your pre-planned strategy removes emotion from the decision.',
+  when:'Build Opportunity Fund over 18 months. Set alert. Deploy automatically when triggered.',
+  steps:[{t:'Build ₹50,000 Opportunity Fund',d:'₹2,500/month in liquid fund. Separate. Label "Crash Deploy — Do Not Touch".'},{t:'Set Zerodha alert at Sensex 20% below peak',d:'When alert triggers, it is time to invest more — not sell.'},{t:'Double SIP for 3–6 months during crash',d:'₹15K→₹30K temporarily. Buy more units at sale prices.'},{t:'Deploy Opportunity Fund as lump sum',d:'One transfer of ₹50K at market low. Historical: 2–3x return in 24–36 months.'},{t:'Turn off financial news entirely',d:'News amplifies fear. Your written plan is the only guide.'}],
+  tips:['India-Pakistan 2025 tension: brief market dip, then recovery — exactly the historical pattern','Make a WRITTEN rule NOW: "If Sensex falls 20%, I invest ₹X extra." Pre-commitment is everything','COVID crash was brief but those who doubled SIP in April 2020 made 100% by March 2021'],
+  warning:'This requires written pre-commitment made BEFORE the crisis. In the moment, your emotions will say SELL. The plan must win.',
+  calc:[{l:'COVID crash (March 2020)',v:'Sensex: 25,000'},{l:'Recovery (Feb 2021)',v:'Sensex: 52,000 → 108% gain'},{l:'2008 crisis recovery time',v:'24 months → then 300%+ gain'},{l:'Crashes in 20 years',v:'Expect 4–5 major events'},{l:'Opportunity Fund return',v:'2–3x in 24–36 months post-crash'}]},
+ {e:'🏡',t:'20-Year Real Estate Strategy',imp:'Own 2–3 properties by Year 20',prev:'Deliberate real estate: home + rental + legacy property.',
+  overview:'A deliberate 20-year real estate plan: current home EMI (Years 1–15), rental 1BHK at Year 15 (using cleared loan capacity), and optional third property at Year 18–20 using accumulated rental income. By Year 20: 3 properties + ₹3.97Cr SIP corpus = complete, multi-dimensional financial freedom.',
+  when:'Year 1: current home. Year 12: start property fund. Year 15: rental property. Year 18–20: optional third.',
+  steps:[{t:'Years 1–15: Pay EMI diligently',d:'Every EMI payment builds equity. By Year 15, you own your home outright.'},{t:'Year 12: Start property sub-fund ₹5K/month',d:'₹5K × 36 months = ₹2.1L minimum down payment base.'},{t:'Year 15: Rental 1BHK',d:'₹40L purchase. ₹15L down, ₹25L loan. Rental covers most EMI.'},{t:'Year 18–20: Third property option',d:'Accumulated rental income (₹15K × 36 = ₹5.4L) funds next down payment.'}],
+  tips:['Real estate in India doubles roughly every 8–12 years in good locations','Leave properties to children — real estate is excellent generational wealth','Rental income is taxable but still worth it after tax at 30% bracket'],
+  warning:'Never buy property on emotional impulse. Yield analysis and legal verification precede every purchase.',
+  calc:[{l:'Property 1 (current home)',v:'Grows 8–10%/year'},{l:'Property 2 (Year 15)',v:'₹40L → ₹80–100L by Year 25'},{l:'Rental income from Property 2',v:'₹15–22K/month'},{l:'Property value Year 20 (both)',v:'₹1.5–2 Crore+'},{l:'Plus SIP corpus',v:'₹3.97 Crore'}]},
+ {e:'📿',t:"Children's Financial Education — Your Best Legacy",imp:'Multiplies wealth across 3 generations',prev:'The most valuable inheritance is financial knowledge.',
+  overview:'Teaching your children about money from age 8–10 is the highest-ROI investment you can make. Financially literate children avoid the mistakes most adults make, inherit your corpus with the wisdom to grow it, and pass it on. The knowledge compounds across generations like money compounding in a mutual fund.',
+  when:'Start age-appropriate conversations from age 6. Formal lessons from age 10.',
+  steps:[{t:'Age 6–8: Piggy bank with goal',d:'₹50/week. Teach saving for a specific goal. First habit: save before spend.'},{t:'Age 10–12: Show compound interest with their money',d:'₹100 at 10% becomes ₹259 in 10 years. Show the math on paper. It changes them.'},{t:'Age 14–16: Joint demat account',d:'Zerodha allows minor demat. Buy 1 share of a company they love. Teach annual reports.'},{t:'Age 18: Join family financial planning sessions',d:'Show them this app. Show them the 20-year plan. They will continue it.'}],
+  tips:['Zerodha Varsity: free, comprehensive — best financial education for teenagers','Let them make small ₹500 mistakes before big ones','Family money discussions without stress normalise financial intelligence'],
+  warning:'Do not shield children from financial reality. Knowledge of constraints teaches responsibility.',
+  calc:[{l:'Cost of this education',v:'Zero money — time only'},{l:'Financial mistakes avoided',v:'₹5–50 Lakhs lifetime'},{l:'Corpus inherited with wisdom',v:'₹3.97Cr becomes ₹15–30Cr in next generation'},{l:'3-generation compounding',v:'Potentially ₹100Cr+'}]},
+ {e:'🤝',t:'Build a Wealth Peer Group',imp:'Accountability worth crores in decisions',prev:'5 people around you determine your financial future.',
+  overview:'Your financial decisions are shaped by the people around you. Five like-minded wealth-building peers — even in a WhatsApp group — provide accountability, share insights, and prevent lifestyle inflation contagion. One good tax tip from the group saves ₹20,000. One accountability reminder keeps the SIP running for another month.',
+  when:'Month 1. Start online if no one nearby.',
+  steps:[{t:'Find 3–5 like-minded investors',d:'Workplace, neighbourhood, beekeeping community, online forums.'},{t:'Simple monthly accountability check-in',d:'"Did everyone transfer SIP this month?" One question. Powerful accountability.'},{t:'Share one financial learning monthly',d:'Each person shares one insight: new scheme, tax tip, fund performance.'},{t:'Annual fee-only advisor consultation',d:'SEBI-registered fee-only advisor: ₹3,000–5,000 for full plan review. Worth every rupee.'}],
+  tips:['Freefincal.com community, Zerodha Community, Reddit r/IndiaInvestments','SEBI investor education programs: free and genuinely valuable','Avoid groups that share stock tips — they destroy wealth, not build it'],
+  warning:'Peer pressure works both ways. If your group lifestyle-inflates, you will too. Choose carefully.',
+  calc:[{l:'Value of one good tax tip',v:'₹10,000–50,000'},{l:'Value of SIP accountability',v:'Never missed = crores over 20yr'},{l:'Cost of bad peer influence',v:'₹50L–1Cr in lost wealth'}]},
+ {e:'🌟',t:'Legacy: Will, Nominations, Financial Guide',imp:'Protects ₹3.97Cr for your family',prev:'A plan without a will is a house without a roof.',
+  overview:'A 20-year wealth plan without nominations and a legal will is catastrophically incomplete. Families have lost entire estates to legal disputes from missing nominations. A ₹5,000–10,000 registered will plus correct nominations on every account ensures everything you build reaches the people you love.',
+  when:'Year 1. This month. Update every 5 years and after every major life event.',
+  steps:[{t:'Register nominations on every account',d:'Every mutual fund, bank, demat, PPF, NPS, insurance. Takes 30 min per platform today.'},{t:'Write a simple registered will',d:'₹5,000–10,000 at a lawyer. Registered will has no ambiguity.'},{t:'Write a "Family Finance Guide"',d:'Where are all accounts? Login credentials in sealed envelope. Insurance policies. What to do first.'}],
+  tips:['SEBI allows mutual fund nominations online — 5 minutes per fund','Joint accounts automatically pass to survivor — make key accounts joint','Digital will services available online for ₹5,000–15,000'],
+  warning:'Unnominated ₹50L mutual fund account = years of legal battle for family to access. Do this today.',
+  calc:[{l:'Cost of proper will',v:'₹5,000–15,000'},{l:'Cost of no will/nomination',v:'₹1–50L in legal costs'},{l:'Corpus protected',v:'₹3.97 Crore'},{l:'Peace of mind value',v:'Priceless'}]},
+ {e:'🏅',t:'Financial Freedom Day — Plan the Destination',imp:'2045: ₹2.3L/month with no alarm clock',prev:'Plan the destination today. The journey gets easier.',
+  overview:'Financial Freedom Day is the day you no longer need to work for money. Your SWP of ₹2.3L/month from ₹3.97Cr exceeds all expenses. This day is approximately 2045. Planning for it concretely today — writing what it looks like, celebrating milestones on the way — makes the 20-year journey sustainable and joyful.',
+  when:'Today. Write the vision. Read it every December 31.',
+  steps:[{t:'Write your Financial Freedom vision in detail',d:'Where will you live? What will you do? What will you give back? How many bees will you keep?'},{t:'Calculate your freedom number',d:'Monthly expenses at Year 20 (with inflation) × 15 = corpus needed.'},{t:'Create December 31 annual review ritual',d:'Every Dec 31: check progress vs plan. Celebrate what went right. Adjust what needs improving.'},{t:'Celebrate every 5-year milestone',d:'Year 5, Year 10, Year 15 — each one deserves recognition. The journey is the wealth.'}],
+  tips:['Write a letter to yourself to open on Freedom Day in 2045','Tell your children the story of how you built this — they will pass it on forever','Financial Freedom is also a mindset — begin practising contentment at each stage'],
+  warning:'Do not delay living while building wealth. Financial freedom is not a number — it is a daily practice.',
+  calc:[{l:'Target corpus',v:'₹3.97 Crore'},{l:'Monthly SWP',v:'₹2.32 Lakhs'},{l:'Estimated Freedom Date',v:'2045'},{l:'Years of investment',v:'20 years'},{l:'Legacy for children',v:'Corpus + wisdom + properties'}]},
+];
+
+// ══════════════════════════════════════════════════════
+// RENDER INVEST + IDEAS
+// ══════════════════════════════════════════════════════
+const STRIPES=['#4CAF7A','#E8920A','#5090E8','#F5C842','#E05050','#A070E0','#4CAF7A','#E8920A','#5090E8','#F5C842','#E05050','#A070E0','#4CAF7A','#E8920A','#5090E8','#F5C842','#E05050','#A070E0','#4CAF7A','#E8920A'];
+function renderInvest(){
+  document.getElementById('invest-list').innerHTML=TIPS.map((t,i)=>`
+    <div class="idea-card" onclick="openDetail('tip',${i})">
+      <div class="idea-stripe" style="background:${STRIPES[i]};"></div>
+      <div class="idea-arr">→</div>
+      <div class="idea-num">TIP ${String(i+1).padStart(2,'0')}</div>
+      <div class="idea-t">${t.e} ${t.t}</div>
+      <div class="idea-prev">${t.prev}</div>
+      <div class="idea-imp">🍯 ${t.imp}</div>
+    </div>`).join('');
+}
+function renderIdeas(){
+  document.getElementById('ideas-list').innerHTML=IDEAS.map((d,i)=>`
+    <div class="idea-card" onclick="openDetail('idea',${i})">
+      <div class="idea-stripe" style="background:${STRIPES[i]};"></div>
+      <div class="idea-arr">→</div>
+      <div class="idea-num">IDEA ${String(i+1).padStart(2,'0')}</div>
+      <div class="idea-t">${d.e} ${d.t}</div>
+      <div class="idea-prev">${d.prev}</div>
+      <div class="idea-imp">🍯 ${d.imp}</div>
+    </div>`).join('');
+}
+
+const HDR_COLORS=['#1E1200','#0A2010','#081428','#1E1A00','#200808','#180828','#1E1200','#0A2010','#081428','#1E1A00','#200808','#180828','#1E1200','#0A2010','#081428','#1E1A00','#200808','#180828','#1E1200','#0A2010'];
+function openDetail(type,i){
+  const item=type==='idea'?IDEAS[i]:TIPS[i];
+  const num=type==='idea'?`IDEA ${String(i+1).padStart(2,'0')} OF 20`:`TIP ${String(i+1).padStart(2,'0')} OF 20`;
+  document.getElementById('dp-hdr').style.background=`linear-gradient(160deg,${HDR_COLORS[i]},#0C0800)`;
+  document.getElementById('dp-emoji').textContent=item.e;
+  document.getElementById('dp-num').textContent=num;
+  document.getElementById('dp-title').textContent=item.t;
+  document.getElementById('dp-impact').textContent='🍯 '+item.imp;
+  let body=`<div class="dp-sec"><div class="dp-sec-t">📖 Overview</div><div class="dp-overview">${item.overview}</div></div>
+    <div class="dp-sec"><div class="dp-sec-t">⏰ When to Do This</div><div class="dp-when"><div class="dp-wl">Timing</div><div class="dp-wt">${item.when}</div></div></div>
+    <div class="dp-sec"><div class="dp-sec-t">📋 Step-by-Step</div>${item.steps.map((s,n)=>`<div class="dp-step"><div class="dp-sn">${n+1}</div><div><div class="dp-st">${s.t}</div><div class="dp-sd">${s.d}</div></div></div>`).join('')}</div>`;
+  if(item.calc) body+=`<div class="dp-sec"><div class="dp-sec-t">🧮 The Numbers</div><div class="dp-calc"><div class="dp-cl">Financial Calculation</div>${item.calc.map(r=>`<div class="dp-cr"><span class="dp-ck">${r.l}</span><span class="dp-cv">${r.v}</span></div>`).join('')}</div></div>`;
+  body+=`<div class="dp-sec"><div class="dp-sec-t">💡 Pro Tips</div>${item.tips.map(t=>`<div class="dp-tip"><div style="font-size:16px;flex-shrink:0;">🐝</div><div style="font-size:11px;color:var(--t2);line-height:1.55;">${t}</div></div>`).join('')}</div>
+    <div class="dp-sec"><div class="dp-sec-t">⚠️ Watch Out</div><div class="dp-warn"><div style="font-size:16px;flex-shrink:0;">⚠️</div><div style="font-size:11px;color:var(--rd);line-height:1.55;">${item.warning}</div></div></div>`;
+  document.getElementById('dp-body').innerHTML=body;
+  document.getElementById('detail-page').classList.add('on');
+  document.getElementById('detail-page').scrollTop=0;
+}
+function closeDetail(){document.getElementById('detail-page').classList.remove('on');}
+
+// ══════════════════════════════════════════════════════
+// EXCEL EXPORT (5 sheets)
+// ══════════════════════════════════════════════════════
+function exportExcel(){
+  try{
+    const wb=XLSX.utils.book_new();
+    const p=getPlan();
+    const total=p.husIncome+p.wifeIncome, afterEmi=total-p.emi, invest=p.sip+p.gold;
+    // Sheet 1: Dashboard
+    const dash=[
+      ['THE HIVE — FAMILY WEALTH TRACKER','','','',''],
+      ['20-Year Financial Freedom Plan','','','',''],
+      ['Report Generated: '+new Date().toLocaleDateString('en-IN'),'','','',''],
+      ['','','','',''],
+      ['═══ MONTHLY INCOME OVERVIEW ═══','','','',''],
+      ['Husband Income','₹'+fmt(p.husIncome),'Wife Income','₹'+fmt(p.wifeIncome),'Total: ₹'+fmt(total)],
+      ['Monthly EMI','₹'+fmt(p.emi),'After EMI','₹'+fmt(afterEmi),'Invested: ₹'+fmt(invest)],
+      ['SIP (Mutual Funds)','₹'+fmt(p.sip),'Gold (SGB/ETF)','₹'+fmt(p.gold),'Em. Fund: ₹'+fmt(p.emerg)],
+      ['Travel Fund (RD)','₹'+fmt(p.travel),'Expenses Budget','₹'+fmt(Math.max(0,afterEmi-invest-p.emerg-p.travel)),'',''],
+      ['','','','',''],
+      ['═══ ANNUAL PERFORMANCE ('+CY+') ═══','','','',''],
+      ['Month','Tasks Done','Total Tasks','Completion %','Status'],
+    ];
+    let ytd=0,ytp=0;
+    for(let m=0;m<12;m++){
+      const mt=getMT(CY,m), done=mt.filter(t=>isChk(t.id,CY,m)).length, tot=mt.length;
+      const pct=tot?Math.round(done/tot*100):0;
+      const status=m>CM?'Future':isSaved(CY,m)?'✓ Saved':pct>0?'In Progress':'Not Started';
+      dash.push([MONTHS[m]+' '+CY,done,tot,pct+'%',status]);
+      if(m<=CM){ytd+=done;ytp+=tot;}
+    }
+    dash.push(['','','','',''],['YTD TOTAL',ytd,ytp,(ytp?Math.round(ytd/ytp*100):0)+'%','Year to Date'],['','','','',''],
+      ['═══ 20-YEAR MILESTONES ═══','','','',''],
+      ['Year','Corpus Target','Monthly SIP','Key Action',''],
+      [1,'₹1.9L','₹15,000','Build habits — Emergency Fund priority',''],
+      [3,'₹6.6L','₹15,000','Step-up SIP 10% — first milestone',''],
+      [5,'₹12.6L','₹16,500+','Review, rebalance, second property research',''],
+      [10,'₹36.6L','₹21,000+','EMI ends — REDIRECT ₹20,000 to SIP immediately!',''],
+      [15,'₹59.6L','₹35,000+','₹1 Crore corpus crossed — buy rental property',''],
+      [20,'₹3.97Cr','₹91,000+','Financial Freedom — setup SWP ₹2.32L/month',''],
+      ['','','','',''],
+      ['═══ THE GOLDEN RULES ═══','','','',''],
+    );
+    ['1. Never cancel SIP — not for any reason','2. Step up SIP 10% every April 1','3. When EMI ends: ₹20,000 IMMEDIATELY goes to SIP — this decision = ₹3.37Cr','4. Emergency Fund ₹1.2L first — then Month 25 redirect to SIP','5. Zero credit card debt ever — 40% interest destroys 13% SIP return','6. Rebalance every April and October — mechanical, not emotional','7. Invest MORE during market crashes — pre-commit in writing','8. Max 80C + 80D + 80CCD deductions every year'].forEach(r=>dash.push([r,'','','','']));
+    const ws1=XLSX.utils.aoa_to_sheet(dash);
+    ws1['!cols']=[{wch:28},{wch:14},{wch:18},{wch:18},{wch:24}];
+    XLSX.utils.book_append_sheet(wb,ws1,'Dashboard');
+
+    // Sheet 2: Task Log
+    const tlog=[['COMPLETE TASK LOG — ALL 20 YEARS','','','','','','']];
+    tlog.push(['Year','Month','Task Name','Notes','Amount','Category','Status']);
+    for(let yr=START_YEAR;yr<START_YEAR+TOTAL_YEARS;yr++) for(let m=0;m<12;m++){
+      const fut=yr>CY||(yr===CY&&m>CM);
+      getMT(yr,m).forEach(t=>tlog.push([yr,MONTHS[m],t.name,t.sub||'',t.amt||'',t.cat||'',fut?'Future':isChk(t.id,yr,m)?'✓ Done':'Pending']));
+    }
+    const ws2=XLSX.utils.aoa_to_sheet(tlog);
+    ws2['!cols']=[{wch:8},{wch:14},{wch:35},{wch:28},{wch:12},{wch:14},{wch:10}];
+    XLSX.utils.book_append_sheet(wb,ws2,'Task Log');
+
+    // Sheet 3: Portfolio
+    const port=[['SIP MUTUAL FUND PORTFOLIO','','','',''],['Fund','Category','Monthly SIP','Expected CAGR','10-Yr Estimate'],
+      ['Mirae Asset Large Cap','Large Cap','₹4,000','12–14%','₹9.76L'],['Parag Parikh Flexi Cap','Flexi Cap','₹3,000','13–15%','₹7.77L'],
+      ['Axis Midcap Fund','Mid Cap','₹3,000','14–16%','₹8.26L'],['Mirae ELSS Tax Saver','ELSS (80C)','₹4,000','12–14%','₹9.76L'],
+      ['Nippon India Small Cap','Small Cap','₹1,000','15–18%','₹2.93L'],['TOTAL SIP','','₹'+fmt(p.sip),'~13% avg','₹38.5L'],
+      ['','','','',''],['GOLD INVESTMENTS','','','',''],
+      ['Sovereign Gold Bonds (SGB)','RBI-backed','₹3,500','8%+2.5% interest','Tax-free at maturity (8yr)'],
+      ['Digital Gold / ETF','Exchange-traded','₹1,500','~8%','Highly liquid'],
+      ['TOTAL GOLD','','₹'+fmt(p.gold),'~10.5%',''],['','','','',''],
+      ['PROTECTION','','','',''],['Term Insurance Husband','Life Cover','₹800/mo','₹1Cr cover 30yr','HDFC/ICICI/Max Life'],
+      ['Term Insurance Wife','Life Cover','₹600/mo','₹1Cr cover 30yr','HDFC/ICICI/Max Life'],['Health Insurance Family','Floater','₹2,500/mo','₹10L+₹50L top-up','Star/Niva Bupa/Care']];
+    const ws3=XLSX.utils.aoa_to_sheet(port);
+    ws3['!cols']=[{wch:30},{wch:16},{wch:14},{wch:22},{wch:24}];
+    XLSX.utils.book_append_sheet(wb,ws3,'Portfolio');
+
+    // Sheet 4: Projections
+    const proj=[['WEALTH PROJECTIONS — SIP @13% CAGR','','','',''],['Year','Monthly SIP','Total Invested','Est. Corpus','Key Milestone'],
+      [2025,'₹15,000','₹1,80,000','₹1,91,122','Foundation — build habits'],
+      [2027,'₹15,000','₹5,40,000','₹6,56,150','Step-up SIP 10%'],
+      [2029,'₹16,500+','₹9,00,000','₹12,58,417','Review & rebalance'],
+      [2032,'₹21,000+','₹14,40,000','₹22,00,000','SGB matures — reinvest'],
+      [2035,'₹35,000+','₹18,00,000','₹36,60,554','EMI ENDS — REDIRECT NOW!'],
+      [2040,'₹70,000+','₹42,00,000','₹1,49,00,000','₹1Cr crossed — Queen Bee'],
+      [2044,'₹91,000+','₹84,00,000','₹3,96,63,482','Financial Freedom 🐝'],
+      ['','','','',''],['GOLD PROJECTION @8% CAGR','','','',''],['Year','Monthly','Invested','Est. Value','Note'],
+      [2025,'₹5,000','₹60,000','₹62,250','Accumulate'],
+      [2029,'₹5,000','₹3,00,000','₹3,67,384',''],
+      [2033,'₹7,500+','₹4,80,000','₹6,69,343','SGB matures — tax-free'],
+      [2044,'₹12,000+','₹18,00,000','₹50,00,000+','SGB portfolio value']];
+    const ws4=XLSX.utils.aoa_to_sheet(proj);
+    ws4['!cols']=[{wch:8},{wch:14},{wch:16},{wch:18},{wch:28}];
+    XLSX.utils.book_append_sheet(wb,ws4,'Wealth Projections');
+
+    // Sheet 5: Ledger
+    const led=[['MONTHLY LEDGER — PLANNED VS ACTUAL','','','','','','']];
+    led.push(['Year','Month','Category','Budget (₹)','Actual (₹)','Difference (₹)','Status']);
+    const afterEmiL=p.husIncome+p.wifeIncome-p.emi;
+    const expPlan=Math.max(0,afterEmiL-p.sip-p.gold-p.emerg-p.travel);
+    for(let yr=START_YEAR;yr<=CY;yr++) for(let m=0;m<=(yr<CY?11:CM);m++){
+      const l=getLedger(yr,m);
+      [{n:'SIP',b:p.sip,a:l.sip},{n:'Gold',b:p.gold,a:l.gold},{n:'Emergency Fund',b:p.emerg,a:l.emerg},
+       {n:'Travel Fund',b:p.travel,a:l.travel},{n:'Expenses',b:expPlan,a:l.exp},
+       {n:'Extra Savings',b:0,a:l.extra},{n:'Emergency Used',b:0,a:l.used}].forEach(it=>{
+        if(it.a) led.push([yr,MONTHS[m],it.n,it.b||0,it.a,(it.a-(it.b||0)),it.a>=(it.b||0)?'On/Over Plan':'Under Plan']);
+       });
+    }
+    const ws5=XLSX.utils.aoa_to_sheet(led);
+    ws5['!cols']=[{wch:8},{wch:14},{wch:18},{wch:14},{wch:14},{wch:14},{wch:14}];
+    XLSX.utils.book_append_sheet(wb,ws5,'Monthly Ledger');
+
+    XLSX.writeFile(wb,'TheHive_WealthReport_'+CY+'.xlsx');
+    toast('🍯 Excel (5 sheets) downloaded!');
+  }catch(e){toast('Export error: '+e.message);console.error(e);}
+}
+
+function exportCSV(){
+  let csv='Year,Month,Task,Notes,Amount,Category,Status\n';
+  for(let yr=START_YEAR;yr<START_YEAR+TOTAL_YEARS;yr++) for(let m=0;m<12;m++){
+    const fut=yr>CY||(yr===CY&&m>CM);
+    getMT(yr,m).forEach(t=>csv+=`${yr},"${MONTHS[m]}","${(t.name||'').replace(/"/g,'""')}","${(t.sub||'').replace(/"/g,'""')}","${t.amt||''}","${t.cat||''}","${fut?'Future':isChk(t.id,yr,m)?'Done':'Pending'}"\n`);
+  }
+  dl('TheHive_'+CY+'.csv',csv,'text/csv');
+  toast('CSV downloaded!');
+}
+function exportJSON(){
+  const bk={v:4,exported:new Date().toISOString(),data:{}};
+  LS.keys().filter(k=>k.startsWith('hv4_')).forEach(k=>{bk.data[k]=LS.get(k);});
+  dl('TheHive_Backup_'+Date.now()+'.json',JSON.stringify(bk,null,2),'application/json');
+  toast('🍯 Full backup saved — upload to Google Drive!');
+}
+function importJSON(){document.getElementById('import-file').click();}
+function handleImport(ev){
+  const file=ev.target.files[0]; if(!file) return;
+  const r=new FileReader();
+  r.onload=e=>{
+    try{
+      const bk=JSON.parse(e.target.result);
+      if(!bk.data) throw new Error('Invalid backup file');
+      if(!confirm('Restore backup? This will overwrite current data.')) return;
+      Object.entries(bk.data).forEach(([k,v])=>LS.set(k,v));
+      init(); toast('✓ Data restored successfully!');
+    }catch(err){toast('Restore failed: '+err.message);}
+  };
+  r.readAsText(file); ev.target.value='';
+}
+function dl(name,content,type){
+  const b=new Blob([content],{type}),u=URL.createObjectURL(b),a=document.createElement('a');
+  a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),1000);
+}
+
+// ══════════════════════════════════════════════════════
+// NAV + TOAST + HELPERS
+// ══════════════════════════════════════════════════════
+function goNav(id,btn){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
+  document.getElementById('s-'+id).classList.add('on');
+  btn.classList.add('on');
+  document.querySelector('.scroll').scrollTop=0;
+  if(id==='report') renderReport();
+  if(id==='tasks'){renderYearTabs();renderMonthStrip();renderTasks();}
+}
+let toastT=null;
+function toast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.classList.add('on');
+  clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('on'),2800);
+}
+function fmt(n){return Number(n||0).toLocaleString('en-IN');}
+function fmtL(n){
+  if(n>=10000000)return(n/10000000).toFixed(2)+'Cr';
+  if(n>=100000)return(n/100000).toFixed(1)+'L';
+  if(n>=1000)return(n/1000).toFixed(0)+'K';
+  return String(n);
+}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+// ══════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════
+function init(){
+  updateHome();
+  renderYearTabs();
+  renderMonthStrip();
+  renderTasks();
+  renderInvest();
+  renderIdeas();
+}
+init();
+</script>
+</body>
+</html>
